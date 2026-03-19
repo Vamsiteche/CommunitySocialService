@@ -414,12 +414,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-        apiKey: "AIzaSyD21h4Wx31ju1LCdUNEM11WeN8JEnI4DIo", authDomain: "kidsserve-6cd01.firebaseapp.com", projectId: "kidsserve-6cd01", storageBucket: "kidsserve-6cd01.firebasestorage.app", messagingSenderId: "655106593192", appId: "1:655106593192:web:17eec7fb3d7cc4def78d9d"
+        apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c",
+        authDomain: "community-social-services.firebaseapp.com",
+        projectId: "community-social-services",
+        storageBucket: "community-social-services.firebasestorage.app",
+        messagingSenderId: "274073102111",
+        appId: "1:274073102111:web:ee7eee5e147ce6109b322a",
+        measurementId: "G-QRZXDBPT09"
     };
     
-    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+    
+    const app = initializeApp(firebaseConfig); 
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app); 
+    const db = getFirestore(app);
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-serve-app';
 
     let currentUser = null; 
@@ -645,9 +656,18 @@
     }
 
     window.handleLogin = async () => {
-        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-        catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
-    };
+    try { 
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        // Use Redirect instead of Popup to avoid GitHub Pages header blocks
+        await signInWithRedirect(auth, provider); 
+    } 
+    catch (error) { 
+        console.error(error);
+        alert("Login failed: " + error.message); 
+    }
+};
+
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
 
     // Registration Dashboard
