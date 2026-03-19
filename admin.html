@@ -272,22 +272,35 @@
 
     <!-- Firebase -->
     <script type="module">
+        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        
+        // FIXED: Imported signInWithRedirect instead of signInWithPopup
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c", authDomain: "community-social-services.firebaseapp.com", projectId: "community-social-service", storageBucket: "community-social-services.firebasestorage.app", messagingSenderId: "274073102111", appId: "1:274073102111:web:ee7eee5e147ce6109b322a"
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c",
+            authDomain: "community-social-services.firebaseapp.com",
+            projectId: "community-social-services",
+            storageBucket: "community-social-services.firebasestorage.app",
+            messagingSenderId: "274073102111",
+            appId: "1:274073102111:web:ee7eee5e147ce6109b322a",
+            measurementId: "G-QRZXDBPT09"
         };
 
-        
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig); 
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app); 
+        const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-serve-app';
 
         let projectChart = null;
-        let existingProjectTitles = new Set(); // Store titles to prevent duplicates
+        let existingProjectTitles = new Set();
 
-        // Toggle Min Pages Field based on Project Type selection
         document.getElementById('pType').addEventListener('change', function(e) {
             document.getElementById('minPagesWrapper').style.display = (e.target.value === 'reading') ? 'block' : 'none';
         });
@@ -299,8 +312,21 @@
             document.getElementById('view-projects').style.display = tabName === 'projects' ? 'block' : 'none';
         }
 
-        onAuthStateChanged(auth, (user) => {
+        // ==========================================
+        // UI AUTHORIZATION CHECK
+        // (Real security is handled by the Firestore Rules!)
+        // ==========================================
+        const AUTHORIZED_ADMIN_EMAIL = "communityequityinc@gmail.com";
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
+                // UI Check: Ensure the user matches the strict admin email
+                if (user.email.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+                    alert("Access Denied: Your email (" + user.email + ") is not authorized.");
+                    signOut(auth);
+                    return;
+                }
+
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('dashboardContent').style.display = 'block';
                 document.getElementById('adminName').innerText = user.email;
@@ -313,9 +339,18 @@
         });
 
         window.handleLogin = async () => {
-            try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
-            catch (error) { document.getElementById('errorMsg').innerText = error.message; document.getElementById('errorMsg').style.display = 'block'; }
+            try { 
+                const provider = new GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                // USING REDIRECT INSTEAD OF POPUP TO FIX GITHUB PAGES COOP ISSUE
+                await signInWithRedirect(auth, provider); 
+            } 
+            catch (error) { 
+                document.getElementById('errorMsg').innerText = error.message; 
+                document.getElementById('errorMsg').style.display = 'block'; 
+            }
         };
+        
         window.handleLogout = () => signOut(auth);
 
         function setupDashboard() {
@@ -331,6 +366,9 @@
                 document.getElementById('completedProjects').innerText = completedCount;
                 document.getElementById('avgAge').innerText = allDocs.length ? (totalAge / allDocs.length).toFixed(1) : 0;
                 updateChart(projectCounts); updateTable(allDocs);
+            }, (error) => {
+                console.error("Database access blocked by server rules.", error);
+                alert("Database access denied. Please ensure your Firestore Security Rules are published!");
             });
         }
 
@@ -360,7 +398,6 @@
                     detailsHtml += `<div style="color: #666;">-</div>`;
                 }
 
-                // Show parent signature if completed
                 if (d.parentName) {
                     detailsHtml += `<div style="color:var(--primary); font-weight:600; margin-top: 0.5rem; font-size: 0.85rem;">Signed: ${d.parentName}</div>`;
                 }
@@ -381,18 +418,20 @@
             const projectsRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
             onSnapshot(projectsRef, (snapshot) => {
                 const container = document.getElementById('projectsListContainer'); container.innerHTML = '';
-                existingProjectTitles.clear(); // Reset titles on every fetch
+                existingProjectTitles.clear();
                 
                 if (snapshot.empty) { container.innerHTML = '<p style="color:#666; font-style:italic;">No projects yet. Add one!</p>'; return; }
                 
                 snapshot.forEach(docSnap => {
                     const p = docSnap.data();
-                    existingProjectTitles.add(p.title.trim().toLowerCase()); // Add to tracking set
+                    existingProjectTitles.add(p.title.trim().toLowerCase());
                     
                     const pTypeStr = p.type === 'reading' ? `📖 Book Log (Min ${p.minPages || 50} pgs)` : '📊 Standard Progress';
                     
                     container.innerHTML += `<div class="admin-project-card"><div class="ap-header"><div class="ap-icon">${p.icon}</div><button class="ap-delete" onclick="window.deleteProject('${docSnap.id}')">Delete</button></div><div class="ap-title">${p.title}</div><p style="font-size:0.85rem; color:#666; margin: 0.5rem 0;">${p.description}</p><div class="ap-type">${pTypeStr} ${p.status === 'upcoming' ? ' • 🟡 Upcoming' : ' • 🟢 Open'}</div></div>`;
                 });
+            }, (error) => {
+                console.error("Database access blocked by server rules.", error);
             });
 
             document.getElementById('addProjectForm').addEventListener('submit', async (e) => {
@@ -400,7 +439,6 @@
                 const btn = e.target.querySelector('button'); 
                 const origText = btn.innerText; 
                 
-                // Duplicate check
                 const newTitle = document.getElementById('pTitle').value.trim();
                 if(existingProjectTitles.has(newTitle.toLowerCase())) {
                     alert("A project with this title already exists. Please choose a unique name.");
@@ -429,14 +467,19 @@
                         timestamp: serverTimestamp()
                     });
                     e.target.reset();
-                    // Reset field visibility
                     document.getElementById('minPagesWrapper').style.display = 'none';
-                } catch (err) { console.error(err); alert("Failed to add project."); } 
+                } catch (err) { console.error(err); alert("Failed to add project. Make sure your server rules allow this."); } 
                 finally { btn.disabled = false; btn.innerText = origText; }
             });
 
             window.deleteProject = async (id) => {
-                if(confirm('Delete this project?')) { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); } catch (err) { alert("Failed to delete."); } }
+                if(confirm('Delete this project?')) { 
+                    try { 
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); 
+                    } catch (err) { 
+                        alert("Failed to delete. You might not have server permissions."); 
+                    } 
+                }
             }
         }
     </script>

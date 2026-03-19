@@ -426,7 +426,6 @@
         measurementId: "G-QRZXDBPT09"
     };
     
-    
     const app = initializeApp(firebaseConfig); 
     const analytics = getAnalytics(app);
     const auth = getAuth(app); 
@@ -656,18 +655,9 @@
     }
 
     window.handleLogin = async () => {
-    try { 
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        // Use Redirect instead of Popup to avoid GitHub Pages header blocks
-        await signInWithRedirect(auth, provider); 
-    } 
-    catch (error) { 
-        console.error(error);
-        alert("Login failed: " + error.message); 
-    }
-};
-
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+        catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
+    };
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
 
     // Registration Dashboard
