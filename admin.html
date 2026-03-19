@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommunityEquityInc - Admin Dashboard</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #1B4332;
+            --secondary: #E76F51;
+            --bg: #F3F4F6;
+            --text: #111827;
+            --white: #FFFFFF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* Login */
+        #loginOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-card { background: var(--white); padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .admin-logo { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; display: block; }
+        .admin-logo span { color: var(--secondary); }
+        .google-btn { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 12px; background: white; color: #444; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 2rem; }
+        .google-btn:hover { background: #f9f9f9; border-color: #ddd; }
+        .google-icon { width: 20px; height: 20px; }
+
+        /* Dashboard */
+        #dashboardContent { display: none; padding: 2rem 5%; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #E5E7EB; }
+        .header-title h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--primary); }
+        .logout-btn { background: transparent; border: 1px solid #DC2626; color: #DC2626; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .logout-btn:hover { background: #FEE2E2; }
+        .admin-nav { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .tab-btn { padding: 0.75rem 1.5rem; border: none; background: white; color: #666; border-radius: 50px; cursor: pointer; font-weight: 600; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(27, 67, 50, 0.2); }
+
+        /* Grid/Table */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--white); padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stat-value { font-size: 2.5rem; font-weight: 900; color: var(--primary); }
+        .stat-label { color: #6B7280; font-size: 0.9rem; font-weight: 500; }
+        .chart-section { background: var(--white); padding: 2rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 2rem; height: 400px; }
+        .table-container { background: var(--white); border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th, td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid #E5E7EB; vertical-align: top; }
+        th { background: #F9FAFB; font-weight: 600; color: #374151; }
+        tr:hover { background: #F9FAFB; }
+        .status-pill { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
+        .status-complete { background: #DCFCE7; color: #166534; }
+        .status-active { background: #DBEAFE; color: #1E40AF; }
+
+        /* Advanced Form */
+        .pm-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: start;}
+        .add-project-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .pm-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .pm-form-group { margin-bottom: 1.25rem; }
+        .pm-form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--primary); }
+        .pm-input, .pm-textarea { width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius: 8px; font-family: inherit; }
+        .pm-textarea { resize: vertical; min-height: 80px; }
+        .pm-help { font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem; display: block; }
+        .pm-btn { width: 100%; padding: 1rem; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 1rem;}
+        .pm-btn:hover { background: #D65A3C; }
+
+        .projects-list { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .admin-project-card { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #E5E7EB; position: relative; }
+        .ap-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+        .ap-icon { font-size: 2rem; background: #F3F4F6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .ap-title { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
+        .ap-type { font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
+        .ap-delete { color: #DC2626; background: #FEE2E2; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+
+        @media (max-width: 1024px) { .pm-grid { grid-template-columns: 1fr; } .pm-form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- Login Screen -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <span class="admin-logo">CommunityEquity<span>Inc</span> Admin</span>
+            <p style="color: #666;">Authorized personnel only.</p>
+            <button class="google-btn" onclick="handleLogin()">
+                <svg class="google-icon" viewBox="0 0 48 48">
+                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.652-3.342-11.303-8l-6.571,4.827C9.656,39.663,16.318,44,24,44z"/>
+                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                </svg>
+                Sign in with Google
+            </button>
+            <p id="errorMsg" style="color: #DC2626; font-size: 0.9rem; margin-top: 1rem; display: none;"></p>
+        </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboardContent">
+        <header class="dashboard-header">
+            <div class="header-title">
+                <h1>Admin Portal</h1>
+                <p style="color: #666;">Manage your community projects.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span id="adminName" style="font-weight: 600;">Admin</span>
+                <button onclick="handleLogout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="admin-nav">
+            <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">Overview</button>
+            <button class="tab-btn" onclick="switchTab('projects')" id="tab-projects">Manage Content & Projects</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="view-overview">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalReg">0</div>
+                    <div class="stat-label">Total Registrations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completedProjects">0</div>
+                    <div class="stat-label">Completed Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgAge">0</div>
+                    <div class="stat-label">Average Age</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <canvas id="projectChart"></canvas>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Participant</th>
+                            <th>Age</th>
+                            <th>Email</th>
+                            <th>Project</th>
+                            <th>Progress</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PROJECTS TAB -->
+        <div id="view-projects" style="display: none;">
+            <div class="pm-grid">
+                <!-- Add Form -->
+                <div class="add-project-card">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Create Project Page</h3>
+                    <form id="addProjectForm">
+                        
+                        <h4 style="margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">1. Basic Info (Cards & Banners)</h4>
+                        <div class="pm-form-group">
+                            <label>Project Title</label>
+                            <input type="text" id="pTitle" class="pm-input" placeholder="e.g. Read & Play Adventure" required>
+                        </div>
+                        <div class="pm-form-row">
+                            <div class="pm-form-group">
+                                <label>Icon (Emoji)</label>
+                                <input type="text" id="pIcon" class="pm-input" placeholder="e.g. 📚🎡" required maxlength="10">
+                            </div>
+                            <div class="pm-form-group">
+                                <label>Badge Text</label>
+                                <input type="text" id="pBadge" class="pm-input" placeholder="e.g. ☀️ Summer 2026" required>
+                            </div>
+                        </div>
+                        <div class="pm-form-group">
+                            <label>Short Description (For Card)</label>
+                            <input type="text" id="pDesc" class="pm-input" placeholder="Very short summary..." required>
+                        </div>
+                        <div class="pm-form-group">
+                            <label>Long Description (For Banner)</label>
+                            <textarea id="pBannerDesc" class="pm-textarea" placeholder="Read books this summer and earn..."></textarea>
+                        </div>
+
+                        <div class="pm-form-row">
+                            <div class="pm-form-group">
+                                <label>Project Type</label>
+                                <select id="pType" class="pm-input">
+                                    <option value="standard">Standard Progress (0-100%)</option>
+                                    <option value="reading">Reading Log (Book Tracking)</option>
+                                </select>
+                            </div>
+                            <div class="pm-form-group">
+                                <label>Status</label>
+                                <select id="pStatus" class="pm-input">
+                                    <option value="open">Open for Registration</option>
+                                    <option value="upcoming">Upcoming (Disabled)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic settings based on Project Type -->
+                        <div class="pm-form-group" id="minPagesWrapper" style="display: none; background: #F0FFF4; padding: 1rem; border-radius: 8px; border: 1px solid #C6F6D5;">
+                            <label style="color: #166534;">Minimum Pages per Book (Reading Logs Only)</label>
+                            <input type="number" id="pMinPages" class="pm-input" placeholder="e.g. 50" value="50">
+                            <span class="pm-help">Books shorter than this won't be accepted by the system.</span>
+                        </div>
+
+                        <h4 style="margin: 2rem 0 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">2. Details Section</h4>
+                        
+                        <div class="pm-form-row">
+                            <div class="pm-form-group">
+                                <label>Duration</label>
+                                <input type="text" id="pDuration" class="pm-input" placeholder="e.g. June 1 – August 15, 2026">
+                            </div>
+                            <div class="pm-form-group">
+                                <label>Location</label>
+                                <input type="text" id="pLocation" class="pm-input" placeholder="e.g. HyperKidz — Westchase">
+                            </div>
+                        </div>
+
+                        <div class="pm-form-group">
+                            <label>Who Can Participate</label>
+                            <span class="pm-help">Enter each requirement on a new line.</span>
+                            <textarea id="pParticipants" class="pm-textarea" placeholder="Elementary school students&#10;Grades 2 through 5"></textarea>
+                        </div>
+
+                        <div class="pm-form-group">
+                            <label>Challenge Rules</label>
+                            <span class="pm-help">Enter each rule on a new line.</span>
+                            <textarea id="pRules" class="pm-textarea" placeholder="Read 10 books during the summer&#10;Books must be age-appropriate"></textarea>
+                        </div>
+
+                        <div class="pm-form-group">
+                            <label>Verification Options (Numbered)</label>
+                            <span class="pm-help">Enter each option on a new line.</span>
+                            <textarea id="pVerification" class="pm-textarea" placeholder="Reading log signed by parent&#10;Written summary"></textarea>
+                        </div>
+
+                        <h4 style="margin: 2rem 0 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">3. Rewards Section</h4>
+                        <div class="pm-form-group">
+                            <label>Main Reward Title</label>
+                            <input type="text" id="pRewardTitle" class="pm-input" placeholder="e.g. 1 Free Open Play Ticket">
+                        </div>
+                        <div class="pm-form-group">
+                            <label>Main Reward Subtext</label>
+                            <input type="text" id="pRewardDesc" class="pm-input" placeholder="e.g. Valid on specific days & times">
+                        </div>
+                        <div class="pm-form-group">
+                            <label>Optional Add-ons (Grid)</label>
+                            <span class="pm-help">Enter each add-on on a new line (include emojis!).</span>
+                            <textarea id="pAddons" class="pm-textarea" placeholder="🏅 Certificate of Completion&#10;📱 Social Media Shout-Out"></textarea>
+                        </div>
+
+                        <button type="submit" class="pm-btn">Publish Project Page</button>
+                    </form>
+                </div>
+
+                <!-- List -->
+                <div>
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Active Projects</h3>
+                    <div class="projects-list" id="projectsListContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyD21h4Wx31ju1LCdUNEM11WeN8JEnI4DIo", authDomain: "kidsserve-6cd01.firebaseapp.com", projectId: "kidsserve-6cd01", storageBucket: "kidsserve-6cd01.firebasestorage.app", messagingSenderId: "655106593192", appId: "1:655106593192:web:17eec7fb3d7cc4def78d9d"
+        };
+        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-serve-app';
+
+        let projectChart = null;
+        let existingProjectTitles = new Set(); // Store titles to prevent duplicates
+
+        // Toggle Min Pages Field based on Project Type selection
+        document.getElementById('pType').addEventListener('change', function(e) {
+            document.getElementById('minPagesWrapper').style.display = (e.target.value === 'reading') ? 'block' : 'none';
+        });
+
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById('view-overview').style.display = tabName === 'overview' ? 'block' : 'none';
+            document.getElementById('view-projects').style.display = tabName === 'projects' ? 'block' : 'none';
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+                document.getElementById('adminName').innerText = user.email;
+                setupDashboard();
+                setupProjectManager();
+            } else {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('dashboardContent').style.display = 'none';
+            }
+        });
+
+        window.handleLogin = async () => {
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+            catch (error) { document.getElementById('errorMsg').innerText = error.message; document.getElementById('errorMsg').style.display = 'block'; }
+        };
+        window.handleLogout = () => signOut(auth);
+
+        function setupDashboard() {
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
+                const allDocs = []; const projectCounts = {}; let totalAge = 0; let completedCount = 0;
+                snapshot.forEach(doc => {
+                    const d = doc.data(); allDocs.push(d);
+                    projectCounts[d.projectName] = (projectCounts[d.projectName] || 0) + 1;
+                    if(d.age) totalAge += parseInt(d.age);
+                    if(d.progress >= 100) completedCount++;
+                });
+                document.getElementById('totalReg').innerText = allDocs.length;
+                document.getElementById('completedProjects').innerText = completedCount;
+                document.getElementById('avgAge').innerText = allDocs.length ? (totalAge / allDocs.length).toFixed(1) : 0;
+                updateChart(projectCounts); updateTable(allDocs);
+            });
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('projectChart').getContext('2d');
+            if (projectChart) projectChart.destroy();
+            projectChart = new Chart(ctx, { type: 'bar', data: { labels: Object.keys(data), datasets: [{ label: 'Registrations', data: Object.values(data), backgroundColor: '#1B4332', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Project Popularity' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+        }
+
+        function updateTable(docs) {
+            const tbody = document.getElementById('tableBody'); tbody.innerHTML = '';
+            docs.forEach(d => {
+                const isComplete = d.progress >= 100;
+                
+                let detailsHtml = '';
+                if (d.projectType === 'reading') {
+                    const booksRead = d.books ? d.books.length : 0;
+                    detailsHtml += `<div style="font-weight: 600;">${booksRead} Books Read</div>`;
+                    if (d.books && d.books.length > 0) {
+                        detailsHtml += `<ul style="padding-left: 1rem; margin: 0.5rem 0 0 0; list-style: disc; font-size: 0.85rem; color: #555;">`;
+                        d.books.forEach(b => {
+                            detailsHtml += `<li>${b.title} (${b.pages || '?'} pgs)</li>`;
+                        });
+                        detailsHtml += `</ul>`;
+                    }
+                } else {
+                    detailsHtml += `<div style="color: #666;">-</div>`;
+                }
+
+                // Show parent signature if completed
+                if (d.parentName) {
+                    detailsHtml += `<div style="color:var(--primary); font-weight:600; margin-top: 0.5rem; font-size: 0.85rem;">Signed: ${d.parentName}</div>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${d.name}</strong></td>
+                        <td>${d.age}</td>
+                        <td>${d.email || 'N/A'}</td>
+                        <td>${d.projectName}</td>
+                        <td><span class="status-pill ${isComplete ? 'status-complete' : 'status-active'}">${d.progress || 0}%</span></td>
+                        <td>${detailsHtml}</td>
+                    </tr>`;
+            });
+        }
+
+        function setupProjectManager() {
+            const projectsRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
+            onSnapshot(projectsRef, (snapshot) => {
+                const container = document.getElementById('projectsListContainer'); container.innerHTML = '';
+                existingProjectTitles.clear(); // Reset titles on every fetch
+                
+                if (snapshot.empty) { container.innerHTML = '<p style="color:#666; font-style:italic;">No projects yet. Add one!</p>'; return; }
+                
+                snapshot.forEach(docSnap => {
+                    const p = docSnap.data();
+                    existingProjectTitles.add(p.title.trim().toLowerCase()); // Add to tracking set
+                    
+                    const pTypeStr = p.type === 'reading' ? `📖 Book Log (Min ${p.minPages || 50} pgs)` : '📊 Standard Progress';
+                    
+                    container.innerHTML += `<div class="admin-project-card"><div class="ap-header"><div class="ap-icon">${p.icon}</div><button class="ap-delete" onclick="window.deleteProject('${docSnap.id}')">Delete</button></div><div class="ap-title">${p.title}</div><p style="font-size:0.85rem; color:#666; margin: 0.5rem 0;">${p.description}</p><div class="ap-type">${pTypeStr} ${p.status === 'upcoming' ? ' • 🟡 Upcoming' : ' • 🟢 Open'}</div></div>`;
+                });
+            });
+
+            document.getElementById('addProjectForm').addEventListener('submit', async (e) => {
+                e.preventDefault(); 
+                const btn = e.target.querySelector('button'); 
+                const origText = btn.innerText; 
+                
+                // Duplicate check
+                const newTitle = document.getElementById('pTitle').value.trim();
+                if(existingProjectTitles.has(newTitle.toLowerCase())) {
+                    alert("A project with this title already exists. Please choose a unique name.");
+                    return;
+                }
+                
+                btn.disabled = true; btn.innerText = "Creating...";
+                try {
+                    await addDoc(projectsRef, {
+                        title: newTitle,
+                        badge: document.getElementById('pBadge').value,
+                        description: document.getElementById('pDesc').value,
+                        bannerDesc: document.getElementById('pBannerDesc').value,
+                        icon: document.getElementById('pIcon').value,
+                        type: document.getElementById('pType').value,
+                        status: document.getElementById('pStatus').value,
+                        minPages: parseInt(document.getElementById('pMinPages').value) || 50,
+                        duration: document.getElementById('pDuration').value,
+                        location: document.getElementById('pLocation').value,
+                        participants: document.getElementById('pParticipants').value,
+                        rules: document.getElementById('pRules').value,
+                        verification: document.getElementById('pVerification').value,
+                        rewardTitle: document.getElementById('pRewardTitle').value,
+                        rewardDesc: document.getElementById('pRewardDesc').value,
+                        addons: document.getElementById('pAddons').value,
+                        timestamp: serverTimestamp()
+                    });
+                    e.target.reset();
+                    // Reset field visibility
+                    document.getElementById('minPagesWrapper').style.display = 'none';
+                } catch (err) { console.error(err); alert("Failed to add project."); } 
+                finally { btn.disabled = false; btn.innerText = origText; }
+            });
+
+            window.deleteProject = async (id) => {
+                if(confirm('Delete this project?')) { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); } catch (err) { alert("Failed to delete."); } }
+            }
+        }
+    </script>
+</body>
+</html>

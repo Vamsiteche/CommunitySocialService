@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommunityEquityInc</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1B4332;
+            --secondary: #E76F51;
+            --accent: #E9C46A;
+            --bg: #FAFAF8;
+            --card-bg: #FFFFFF;
+            --text: #1A1A1A;
+            --muted: #666666;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: var(--bg);
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--secondary); }
+
+        .nav-actions { display: flex; align-items: center; gap: 1rem; }
+        .nav-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.95rem; border: 2px solid var(--primary); padding: 0.5rem 1.3rem; border-radius: 50px; transition: all 0.2s; background: transparent; cursor: pointer; }
+        .nav-btn:hover { background: var(--primary); color: white; }
+        .user-profile { display: none; align-items: center; gap: 0.8rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* HOME VIEW STYLES */
+        .hero { text-align: center; padding: 6rem 2rem 4rem; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 4rem); color: var(--primary); line-height: 1.15; margin-bottom: 1.2rem; }
+        .hero h1 em { font-style: normal; color: var(--secondary); }
+        .hero p { font-size: 1.1rem; color: var(--muted); font-weight: 300; max-width: 480px; margin: 0 auto 2rem; line-height: 1.7; }
+        .hero-btn { display: inline-block; background: var(--primary); color: white; padding: 0.9rem 2.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; transition: background 0.2s; border: none; cursor: pointer; font-size: 1rem; }
+        .hero-btn:hover { background: #2D6A4F; }
+        .divider { width: 60px; height: 3px; background: var(--accent); margin: 0 auto 3rem; border-radius: 2px; }
+        .about { max-width: 800px; margin: 0 auto; text-align: center; padding: 0 2rem 5rem; }
+        .about h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
+        .about p { font-size: 1.1rem; color: var(--muted); font-weight: 300; line-height: 1.8; }
+        .projects { background: var(--primary); padding: 5rem 5%; text-align: center; }
+        .projects h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 3rem; text-transform: uppercase; }
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: auto; }
+        
+        .project-card { background: white; padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: 0.3s ease; text-align: center; cursor: pointer; }
+        .project-card:hover { transform: translateY(-8px); }
+        .project-icon { font-size: 3.5rem; margin-bottom: 1rem; display: inline-block; }
+        .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); margin-bottom: 0.8rem; }
+        .project-card p { color: var(--muted); font-size: 0.95rem; font-weight: 300; line-height: 1.7; margin-bottom: 1.5rem; }
+        .badge { display: inline-block; background: #E8F5E9; color: #2D6A4F; padding: 0.4rem 1.2rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
+        .badge.upcoming { background: #FFF3CD; color: #B45309; }
+
+        /* PROJECT DETAIL VIEW STYLES */
+        #projectDetailView { display: none; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .detail-banner { background: var(--primary); text-align: center; padding: 4rem 2rem; position: relative; }
+        .detail-back { position: absolute; top: 2rem; left: 5%; color: white; text-decoration: none; font-weight: 600; cursor: pointer; opacity: 0.8; transition: 0.2s;}
+        .detail-back:hover { opacity: 1; text-decoration: underline; }
+        .detail-banner-icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
+        .detail-banner h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); color: white; margin-bottom: 0.8rem; }
+        .detail-banner p { color: rgba(255,255,255,0.75); font-size: 1.05rem; font-weight: 300; max-width: 560px; margin: 0 auto 1.5rem; line-height: 1.7; }
+        
+        .detail-content { max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .detail-block { background: white; border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
+        .detail-block-title { display: flex; align-items: center; gap: 0.7rem; font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--primary); margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 2px solid var(--accent); }
+        
+        .info-row { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.7rem; }
+        .info-label { font-weight: 600; color: var(--primary); min-width: 120px; font-size: 0.95rem; }
+        .info-value { color: #555; font-weight: 300; font-size: 0.95rem; line-height: 1.6; }
+
+        ul.detail-list { list-style: none; padding: 0; }
+        ul.detail-list li { padding: 0.45rem 0; color: #555; font-weight: 300; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.5; }
+        ul.detail-list li::before { content: '→'; color: var(--secondary); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
+        ul.detail-list.numbered { counter-reset: item; }
+        ul.detail-list.numbered li::before { content: counter(item); counter-increment: item; background: var(--primary); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+
+        .reward-main { background: var(--primary); border-radius: 14px; padding: 1.5rem 2rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1.2rem; }
+        .reward-main .reward-icon { font-size: 2.5rem; flex-shrink: 0; }
+        .reward-main h4 { font-family: 'Playfair Display', serif; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.3rem; }
+        .reward-main p { color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 300; }
+        .addons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+        .addon-item { background: #F0FFF4; border-radius: 12px; padding: 0.9rem 1.2rem; font-size: 0.9rem; color: #2D6A4F; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+
+        .cta-block { background: var(--secondary); border-radius: 20px; padding: 2.5rem; text-align: center; margin-top: 2rem; }
+        .cta-block h3 { font-family: 'Playfair Display', serif; color: white; font-size: 1.6rem; margin-bottom: 0.6rem; }
+        .cta-block p { color: rgba(255,255,255,0.85); font-weight: 300; margin-bottom: 1.5rem; }
+        .cta-btn { display: inline-block; background: white; color: var(--secondary); padding: 0.9rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: transform 0.2s; cursor: pointer; border:none; }
+        .cta-btn:hover { transform: translateY(-2px); }
+
+
+        /* Secure Content Wrapper (Registration & Log) */
+        #secureContent { display: none; opacity: 0; transition: opacity 0.5s ease; background: white; }
+        #secureContent.visible { opacity: 1; }
+
+        /* Registration Form */
+        .register-section { padding: 5rem 5%; }
+        .section-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--primary); margin-bottom: 3rem; }
+        .form-container { background: white; border-radius: 24px; padding: 3rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); max-width: 800px; margin: auto; border: 1px solid #eee; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--primary); }
+        .form-control { width: 100%; padding: 1rem; border-radius: 12px; border: 2px solid #F3F4F6; font-family: inherit; font-size: 1rem; transition: 0.3s; }
+        .form-control:focus { outline: none; border-color: var(--secondary); background: #FFF9F8; }
+        .submit-btn { width: 100%; background: var(--secondary); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-top: 1rem; }
+        .submit-btn:hover { background: #D65A3C; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Dynamic View Details Button */
+        .view-details-btn {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 0 1.2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none; /* hidden until selection */
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .view-details-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* My Adventures / Log */
+        .adventure-log { margin-top: 4rem; background: #FAFAF8; padding: 2.5rem; border-radius: 20px; border: 1px solid #eee; }
+        .log-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        .registration-list { list-style: none; }
+        .reg-item { background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 1rem; border: 1px solid #eee; }
+        .reg-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .reg-item-info strong { color: var(--primary); font-size: 1.2rem; font-family: 'Playfair Display', serif; }
+        .reg-item-info span { color: var(--muted); font-size: 0.9rem; }
+
+        /* Progress Bar Styles */
+        .progress-container { background: #E0E7FF; border-radius: 50px; height: 10px; width: 100%; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar { background: linear-gradient(90deg, #1B4332, #2D6A4F); height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
+        .action-row { display: flex; justify-content: space-between; align-items: center; }
+        .progress-btn { background: #E8F5E9; color: #1B4332; border: 1px solid #1B4332; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .progress-btn:hover { background: #1B4332; color: white; }
+
+        /* Book Log Styles */
+        .book-log-container { background: #FAFAF8; padding: 1.5rem; border-radius: 12px; margin-top: 0.5rem; border: 1px solid #E5E7EB; }
+        .book-list { list-style: none; margin-bottom: 1rem; }
+        .book-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: #4B5563; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB; }
+        .book-item:last-child { border-bottom: none; }
+        .book-icon { color: var(--secondary); font-size: 1.2rem; }
+        .book-form { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .book-input { flex: 1; min-width: 100px; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.9rem; }
+        .book-input-pages { width: 80px; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.9rem; }
+        .add-book-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .add-book-btn:hover { background: #2D6A4F; }
+        .delete-btn { background: #FEE2E2; color: #EF4444; border: none; padding: 0.4rem 0.8rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+        .empty-state { text-align: center; color: var(--muted); padding: 3rem; font-style: italic; }
+
+        /* Completion Form */
+        .completion-box { margin-top: 1rem; padding: 1rem; background: #F0FFF4; border-radius: 8px; border: 1px solid #C6F6D5; }
+        .completion-text { font-size: 0.9rem; color: #166534; font-weight: bold; margin-bottom: 0.5rem; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(27, 67, 50, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .login-modal { background: white; padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; }
+        .modal-overlay.open .login-modal { transform: translateY(0); }
+        .login-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .login-desc { color: var(--muted); margin-bottom: 2rem; }
+        .google-btn { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 12px; background: white; color: #444; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .google-btn:hover { background: #f9f9f9; border-color: #ddd; }
+        .google-icon { width: 20px; height: 20px; }
+        .close-modal { margin-top: 1.5rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
+
+        /* Footer */
+        footer { text-align: center; padding: 3rem 2rem; font-size: 0.9rem; color: var(--muted); border-top: 1px solid #eee; background: var(--bg); }
+        footer a { color: #2D6A4F; text-decoration: none; font-weight: 600; }
+
+        @media (max-width: 600px) {
+            .addons-grid { grid-template-columns: 1fr; }
+            .info-row { flex-direction: column; gap: 0.2rem; }
+            .project-select-row { flex-direction: column; }
+            .view-details-btn { padding: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Modals -->
+<div class="modal-overlay" id="loginModal">
+    <div class="login-modal">
+        <h2 class="login-title">Welcome!</h2>
+        <p class="login-desc">Sign in to join projects and track your community service.</p>
+        <button class="google-btn" onclick="handleLogin()">
+            <svg class="google-icon" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.652-3.342-11.303-8l-6.571,4.827C9.656,39.663,16.318,44,24,44z"/>
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+            </svg>
+            Sign in with Google
+        </button>
+        <button class="close-modal" onclick="toggleModal(false)">Cancel</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="profileModal">
+    <div class="login-modal">
+        <h2 class="login-title">One Last Step! 📝</h2>
+        <p class="login-desc">Tell us a little about yourself to finish your profile.</p>
+        <form id="profileForm">
+            <div class="form-group" style="text-align: left;">
+                <label for="profileName">Your Name</label>
+                <input type="text" id="profileName" class="form-control" placeholder="What should we call you?" required>
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="profileAge">Your Age</label>
+                <select id="profileAge" class="form-control" required>
+                    <option value="" disabled selected>Select age</option>
+                    <option value="8">8 years old</option>
+                    <option value="9">9 years old</option>
+                    <option value="10">10 years old</option>
+                    <option value="11">11 years old</option>
+                    <option value="12">12 years old</option>
+                    <option value="13">13 years old</option>
+                    <option value="14">14 years old</option>
+                    <option value="15">15+ years old</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn">Complete Profile</button>
+        </form>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav>
+    <a href="#" class="logo" onclick="closeProjectDetail()">CommunityEquity<span>Inc</span></a>
+    <div class="nav-actions">
+        <div id="loggedOutNav"><button onclick="toggleModal(true)" class="nav-btn">Get Involved / Login</button></div>
+        <div id="loggedInNav" class="user-profile">
+            <div class="user-avatar" id="userInitial">U</div>
+            <button onclick="handleLogout()" class="nav-btn" style="border:none; padding: 0.5rem; color: var(--muted);">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<!-- MAIN HOME VIEW -->
+<div id="homeView">
+    <section class="hero">
+        <h1>Youth serving<br>community with <em>purpose.</em></h1>
+        <p>One young person on a mission to make a difference in the community.</p>
+        <div id="heroActions">
+            <button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn">
+                See Our Projects
+            </button>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="about">
+        <h2>Who We Are</h2>
+        <p>This portal is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection. We empower local society by launching different kinds of youth-driven projects on a periodic basis — from literacy and education to neighborhood support and community wellness. Every project is a step toward a more connected, caring, and equitable community for everyone.</p>
+    </section>
+
+    <section class="projects" id="projects">
+        <h2>OUR PROJECTS</h2>
+        <div class="projects-grid" id="dynamicProjectsGrid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- Secure Dashboard Area -->
+    <div id="secureContent">
+        <section class="register-section" id="register">
+            <h2 class="section-title">Ready to get involved?</h2>
+            <div class="form-container">
+                <form id="projectForm">
+                    <div class="form-group">
+                        <label>Joining As:</label>
+                        <div style="font-size: 1.1rem; font-family: 'Playfair Display', serif; color: var(--primary);" id="joiningAsDisplay">Explorer</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="projectChoice">Which project do you want to join?</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: stretch;" class="project-select-row">
+                            <select id="projectChoice" class="form-control" required style="flex: 1;">
+                                <option value="" disabled selected>Choose a project...</option>
+                            </select>
+                            <button type="button" id="viewDetailsBtn" class="view-details-btn">
+                                ℹ️ View Details
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">Sign Me Up!</button>
+                </form>
+
+                <div class="success-message" id="successMessage">
+                    <h3>Awesome, <span id="displayKidName"></span>!</h3>
+                    <p>You are officially signed up. Check your adventure log below to track your progress.</p>
+                    <p style="margin-top:1.5rem;"><button onclick="resetForm()" style="background:none; border:none; color:var(--secondary); font-weight:bold; cursor:pointer; text-decoration:underline;">Register for another project</button></p>
+                </div>
+
+                <div class="adventure-log">
+                    <h3 class="log-title">🎒 My Active Projects</h3>
+                    <div id="logContainer">
+                        <div class="empty-state">You haven't joined any projects yet. Pick one above to get started!</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- DYNAMIC PROJECT DETAIL VIEW (Template) -->
+<div id="projectDetailView">
+    <div class="detail-banner">
+        <a class="detail-back" onclick="closeProjectDetail()">← Back to Home</a>
+        <span class="detail-banner-icon" id="dtIcon">📚🎡</span>
+        <h1 id="dtTitle">Project Title</h1>
+        <p id="dtBannerDesc">Project Description Banner</p>
+        <span class="badge" style="background:#E9C46A; color:#1B4332; font-size:0.9rem;" id="dtBadge">Status Badge</span>
+    </div>
+
+    <div class="detail-content">
+        <!-- Info -->
+        <div class="detail-block">
+            <div class="detail-block-title"><span class="emoji">📌</span> Program Details</div>
+            <div class="info-row"><span class="info-label">Program Name</span><span class="info-value" id="dtInfoName"></span></div>
+            <div class="info-row"><span class="info-label">📅 Duration</span><span class="info-value" id="dtDuration">TBD</span></div>
+            <div class="info-row"><span class="info-label">📍 Location</span><span class="info-value" id="dtLocation">TBD</span></div>
+        </div>
+
+        <!-- Participants -->
+        <div class="detail-block">
+            <div class="detail-block-title"><span class="emoji">👧👦</span> Who Can Participate</div>
+            <ul class="detail-list" id="dtParticipants"></ul>
+        </div>
+
+        <!-- Rules -->
+        <div class="detail-block">
+            <div class="detail-block-title"><span class="emoji">📖</span> Challenge Rules</div>
+            <ul class="detail-list" id="dtRules"></ul>
+        </div>
+
+        <!-- Verification -->
+        <div class="detail-block">
+            <div class="detail-block-title"><span class="emoji">📝</span> Verification Options</div>
+            <p style="font-size:0.9rem; color:#888; margin-bottom:1rem; font-weight:300;">Choose one or combine any of the following:</p>
+            <ul class="detail-list numbered" id="dtVerification"></ul>
+        </div>
+
+        <!-- Reward -->
+        <div class="detail-block">
+            <div class="detail-block-title"><span class="emoji">🎁</span> Reward</div>
+            <div class="reward-main">
+                <div class="reward-icon">🎟️</div>
+                <div>
+                    <h4 id="dtRewardTitle">Reward Title</h4>
+                    <p id="dtRewardDesc">Reward Description</p>
+                </div>
+            </div>
+            <p style="font-size:0.85rem; color:#999; margin-bottom:1.2rem; font-weight:300;">✨ Optional Add-ons for Extra Recognition:</p>
+            <div class="addons-grid" id="dtAddons"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-block">
+            <h3>Ready to start? 🚀</h3>
+            <p>Register today and kick off your adventure!</p>
+            <button class="cta-btn" id="dtCtaBtn">Login to Register</button>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 CommunityEquityInc · <a href="mailto:hello@communityequityinc.org">hello@communityequityinc.org</a></p>
+</footer>
+
+<!-- Firebase SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        apiKey: "AIzaSyD21h4Wx31ju1LCdUNEM11WeN8JEnI4DIo", authDomain: "kidsserve-6cd01.firebaseapp.com", projectId: "kidsserve-6cd01", storageBucket: "kidsserve-6cd01.firebasestorage.app", messagingSenderId: "655106593192", appId: "1:655106593192:web:17eec7fb3d7cc4def78d9d"
+    };
+    
+    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-serve-app';
+
+    let currentUser = null; 
+    let currentUserProfile = null; 
+    let unsubscribeLog = null;
+    let loadedProjects = {};
+    let currentOpenProject = null;
+    let userRegisteredProjectIds = new Set(); // Tracks the projects the user is already enrolled in
+
+    // View Management
+    window.toggleModal = (show) => { const m = document.getElementById('loginModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
+    window.toggleProfileModal = (show) => { const m = document.getElementById('profileModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
+    
+    // Updates Dropdown states to show (Registered) or (Upcoming)
+    function updateProjectDropdownUI() {
+        const select = document.getElementById('projectChoice');
+        Array.from(select.options).forEach(opt => {
+            if (!opt.value) return; // Skip placeholder
+            const p = loadedProjects[opt.value];
+            if (!p) return;
+
+            if (userRegisteredProjectIds.has(opt.value)) {
+                opt.disabled = true;
+                opt.textContent = `${p.title} (Already Registered)`;
+            } else if (p.status === 'upcoming') {
+                opt.disabled = true;
+                opt.textContent = `${p.title} (Upcoming)`;
+            } else {
+                opt.disabled = false;
+                opt.textContent = p.title;
+            }
+        });
+    }
+
+    window.openProjectDetail = (projectId) => {
+        const p = loadedProjects[projectId];
+        if(!p) return;
+        currentOpenProject = p;
+
+        // Populate DOM
+        document.getElementById('dtIcon').innerText = p.icon || '📌';
+        document.getElementById('dtTitle').innerText = p.title || 'Project';
+        document.getElementById('dtBannerDesc').innerText = p.bannerDesc || p.description || '';
+        document.getElementById('dtBadge').innerText = p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open Now');
+        document.getElementById('dtInfoName').innerText = p.title || '';
+        document.getElementById('dtDuration').innerText = p.duration || 'TBD';
+        document.getElementById('dtLocation').innerText = p.location || 'TBD';
+        
+        const renderList = (text, id) => {
+            const el = document.getElementById(id);
+            if(!text) { el.innerHTML = '<li>TBD</li>'; return; }
+            el.innerHTML = text.split('\n').filter(i=>i.trim()).map(i=>`<li>${i}</li>`).join('');
+        };
+        
+        renderList(p.participants, 'dtParticipants');
+        renderList(p.rules, 'dtRules');
+        renderList(p.verification, 'dtVerification');
+        
+        document.getElementById('dtRewardTitle').innerText = p.rewardTitle || 'Certificate of Completion';
+        document.getElementById('dtRewardDesc').innerText = p.rewardDesc || 'For finishing the program.';
+        
+        const addonsEl = document.getElementById('dtAddons');
+        if(p.addons) {
+            addonsEl.innerHTML = p.addons.split('\n').filter(i=>i.trim()).map(i=>`<div class="addon-item">${i}</div>`).join('');
+        } else { addonsEl.innerHTML = '<div class="addon-item">🏅 Certificate</div>'; }
+
+        // Manage CTA Button based on Auth, Status, & Enrollment State
+        updateDetailCTA();
+
+        // Switch Views
+        document.getElementById('homeView').style.display = 'none';
+        document.getElementById('projectDetailView').style.display = 'block';
+        window.scrollTo(0,0);
+    };
+
+    window.closeProjectDetail = () => {
+        currentOpenProject = null;
+        document.getElementById('projectDetailView').style.display = 'none';
+        document.getElementById('homeView').style.display = 'block';
+    };
+
+    function updateDetailCTA() {
+        const ctaBtn = document.getElementById('dtCtaBtn');
+        if(!currentOpenProject) return;
+
+        if (currentOpenProject.status === 'upcoming') {
+            ctaBtn.innerText = "Opening Soon";
+            ctaBtn.style.opacity = "0.6";
+            ctaBtn.style.cursor = "default";
+            ctaBtn.onclick = null;
+            return;
+        }
+
+        if (currentUser) {
+            // Check if already registered
+            if (userRegisteredProjectIds.has(currentOpenProject.id)) {
+                ctaBtn.innerText = "Already Registered ✓";
+                ctaBtn.style.opacity = "0.6";
+                ctaBtn.style.cursor = "default";
+                ctaBtn.onclick = null;
+            } else {
+                ctaBtn.innerText = "Register Now";
+                ctaBtn.style.opacity = "1";
+                ctaBtn.style.cursor = "pointer";
+                ctaBtn.onclick = () => {
+                    closeProjectDetail();
+                    document.getElementById('projectChoice').value = currentOpenProject.id;
+                    document.getElementById('projectChoice').dispatchEvent(new Event('change'));
+                    document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'});
+                };
+            }
+        } else {
+            ctaBtn.style.opacity = "1";
+            ctaBtn.style.cursor = "pointer";
+            ctaBtn.innerText = "Login to Register";
+            ctaBtn.onclick = () => toggleModal(true);
+        }
+    }
+
+
+    // Load Projects
+    const loadProjects = () => {
+        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
+            const grid = document.getElementById('dynamicProjectsGrid');
+            const select = document.getElementById('projectChoice');
+            grid.innerHTML = ''; select.innerHTML = '<option value="" disabled selected>Choose a project...</option>';
+            loadedProjects = {};
+
+            if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center; width:100%; color: white;">No projects available right now. Check back later!</p>'; return; }
+
+            snapshot.forEach(docSnap => {
+                const p = docSnap.data();
+                loadedProjects[docSnap.id] = { ...p, id: docSnap.id };
+
+                // Card (Clickable to open details)
+                grid.innerHTML += `
+                    <div class="project-card" onclick="openProjectDetail('${docSnap.id}')">
+                        <div class="project-icon">${p.icon || '📌'}</div>
+                        <h3>${p.title}</h3>
+                        <p>${p.description}</p>
+                        <div class="badge ${p.status === 'upcoming' ? 'upcoming' : ''}">${p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open')}</div>
+                    </div>
+                `;
+
+                // Build Dropdown
+                const opt = document.createElement('option');
+                opt.value = docSnap.id;
+                select.appendChild(opt);
+            });
+            
+            // Sync dropdown disabled states
+            updateProjectDropdownUI();
+            if (currentOpenProject) updateDetailCTA();
+        });
+    }
+
+    loadProjects();
+
+    // Form Event Listener for "View Details" button
+    document.getElementById('projectChoice').addEventListener('change', (e) => {
+        const btn = document.getElementById('viewDetailsBtn');
+        if(e.target.value) {
+            btn.style.display = 'flex';
+            btn.onclick = () => openProjectDetail(e.target.value);
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+
+    // Auth
+    onAuthStateChanged(auth, async (user) => {
+        currentUser = user;
+        if (user) await checkUserProfile(user);
+        else {
+            userRegisteredProjectIds.clear();
+            updateProjectDropdownUI();
+            updateUIForLoggedOut();
+        }
+        if(currentOpenProject) updateDetailCTA();
+    });
+
+    async function checkUserProfile(user) {
+        try {
+            const snap = await getDoc(doc(db, 'artifacts', appId, 'users', user.uid));
+            if (snap.exists()) {
+                currentUserProfile = snap.data();
+                updateUIForLoggedIn(user, currentUserProfile);
+            } else {
+                toggleModal(false); toggleProfileModal(true);
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); if (!currentUser) return;
+        const name = document.getElementById('profileName').value;
+        const age = document.getElementById('profileAge').value;
+        const btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = "Saving...";
+        try {
+            const data = { name, age, email: currentUser.email };
+            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid), data);
+            currentUserProfile = data; toggleProfileModal(false); updateUIForLoggedIn(currentUser, data);
+        } catch (err) { alert("Could not save profile."); } finally { btn.disabled = false; btn.innerText = "Complete Profile"; }
+    });
+
+    const updateUIForLoggedIn = (user, profile) => {
+        document.getElementById('loggedOutNav').style.display = 'none';
+        document.getElementById('loggedInNav').style.display = 'flex';
+        document.getElementById('userInitial').innerText = profile && profile.name ? profile.name.charAt(0).toUpperCase() : 'U';
+        document.getElementById('joiningAsDisplay').innerText = profile ? `${profile.name} (Age ${profile.age})` : "Member";
+
+        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'})" class="hero-btn">Register for a Project ↓</button>`;
+
+        const sc = document.getElementById('secureContent'); sc.style.display = 'block'; setTimeout(() => sc.classList.add('visible'), 50);
+        window.toggleModal(false); setupRealtimeLog(user.uid);
+    }
+
+    const updateUIForLoggedOut = () => {
+        document.getElementById('loggedOutNav').style.display = 'block'; document.getElementById('loggedInNav').style.display = 'none';
+        const sc = document.getElementById('secureContent'); sc.classList.remove('visible'); setTimeout(() => sc.style.display = 'none', 300);
+        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: white; color: var(--primary); margin-right: 1rem;">Explore Projects</button><button onclick="toggleModal(true)" class="hero-btn">Login to Register</button>`;
+        if (unsubscribeLog) unsubscribeLog();
+    }
+
+    window.handleLogin = async () => {
+        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+        catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
+    };
+    window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
+
+    // Registration Dashboard
+    function setupRealtimeLog(userId) {
+        if (unsubscribeLog) unsubscribeLog();
+        unsubscribeLog = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
+            const logContainer = document.getElementById('logContainer'); if (!logContainer) return;
+            
+            userRegisteredProjectIds.clear(); // Reset tracking set
+            const userDocs = []; 
+            
+            snapshot.forEach(doc => { 
+                if(doc.data().userId === userId) {
+                    const data = doc.data();
+                    userDocs.push({id: doc.id, ...data}); 
+                    userRegisteredProjectIds.add(data.projectId); // Log enrollment
+                } 
+            });
+
+            // Update Dropdown UI & Detail view after finding all user enrollments
+            updateProjectDropdownUI();
+            if (currentOpenProject) updateDetailCTA();
+
+            if (userDocs.length === 0) { logContainer.innerHTML = '<div class="empty-state">You haven\'t joined any projects yet. Pick one above to get started!</div>'; return; }
+
+            let html = '<ul class="registration-list">';
+            userDocs.forEach((d) => {
+                const prog = d.progress || 0; const isRead = d.projectType === 'reading'; const isDone = prog >= 100;
+                let action = '';
+                
+                if (isRead) {
+                    const bks = d.books || []; const maxBks = 3;
+                    let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:#aaa; font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:#888; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
+                    let form = '';
+                    
+                    if (bks.length < maxBks) {
+                        form = `
+                            <div class="book-form">
+                                <input type="text" id="title-${d.id}" class="book-input" placeholder="Book Title" required>
+                                <input type="text" id="author-${d.id}" class="book-input" placeholder="Author" required>
+                                <input type="number" id="pages-${d.id}" class="book-input-pages" placeholder="Pages" required>
+                                <button class="add-book-btn" onclick="window.addBook('${d.id}', '${d.projectId}')">Log Book</button>
+                            </div>
+                        `;
+                    }
+                    action = `<div class="book-log-container">${list}${form}</div>`;
+                } else {
+                    action = `<div class="action-row"><span style="font-size:0.9rem; font-weight:600; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
+                }
+
+                // Completion block (Applies to both standard and reading projects)
+                let completionBlock = '';
+                if (isDone) {
+                    if (d.parentName) {
+                        completionBlock = `
+                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#F0FFF4; border-radius:8px;">
+                                <div style="color:var(--primary); font-weight:bold; font-size:1.1rem;">🎉 Project Completed!</div>
+                                <div style="font-size:0.85rem; color:#166534; margin-top:0.3rem;">Verified by: ${d.parentName}</div>
+                            </div>
+                        `;
+                    } else {
+                        completionBlock = `
+                            <div class="completion-box">
+                                <p class="completion-text">🎉 Goal Reached! Final Step: Parent Signature</p>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <input type="text" id="parent-${d.id}" class="book-input" style="background:white; border-color:#86EFAC;" placeholder="Parent/Guardian Name" required>
+                                    <button class="add-book-btn" style="background:#166534; white-space:nowrap;" onclick="window.signCompletion('${d.id}')">Sign Off</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                html += `<li class="reg-item"><div class="reg-header"><div class="reg-item-info"><strong>${d.projectName}</strong><br><span>Status: ${isDone ? 'Completed' : 'In Progress'}</span></div>${!isDone ? `<button class="delete-btn" onclick="window.cancelRegistration('${d.id}')">Cancel</button>` : ''}</div><div class="progress-container"><div class="progress-bar" style="width: ${prog}%"></div></div>${action}${completionBlock}</li>`;
+            });
+            logContainer.innerHTML = html + '</ul>';
+        });
+    }
+
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); if (!currentUser || !currentUserProfile) return;
+        const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Processing...";
+        const pId = document.getElementById('projectChoice').value; const pData = loadedProjects[pId];
+        
+        // Double check just in case
+        if(userRegisteredProjectIds.has(pId)) {
+            alert("You are already registered for this project.");
+            btn.disabled = false; btn.innerText = "Sign Me Up!";
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), {
+                userId: currentUser.uid, name: currentUserProfile.name, age: currentUserProfile.age, email: currentUser.email,
+                projectId: pId, projectName: pData ? pData.title : 'Unknown', projectType: pData ? pData.type : 'standard',
+                progress: 0, books: [], timestamp: serverTimestamp()
+            });
+            document.getElementById('displayKidName').innerText = currentUserProfile.name;
+            document.getElementById('projectForm').style.display = 'none'; document.getElementById('successMessage').style.display = 'block';
+        } catch (err) { alert("We couldn't save your spot."); } finally { btn.disabled = false; btn.innerText = "Sign Me Up!"; }
+    });
+
+    window.cancelRegistration = async (id) => { if (currentUser && confirm("Cancel this registration?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id)); };
+    
+    window.updateProgress = async (id, cur) => { 
+        if (currentUser) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id), { progress: Math.min(cur + 25, 100) }); 
+    };
+    
+    window.addBook = async (docId, projectId) => {
+        if (!currentUser) return;
+        const title = document.getElementById(`title-${docId}`).value.trim(); 
+        const author = document.getElementById(`author-${docId}`).value.trim();
+        const pagesStr = document.getElementById(`pages-${docId}`).value;
+        const pages = parseInt(pagesStr);
+
+        if (!title || !author || !pagesStr || isNaN(pages)) {
+            return alert("Please enter title, author, and number of pages.");
+        }
+
+        // Get minimum page requirement (fallback to 50 if missing)
+        const pData = loadedProjects[projectId];
+        const minPages = (pData && pData.minPages) ? pData.minPages : 50;
+
+        if (pages < minPages) {
+            return alert(`Books must be at least ${minPages} pages long to count for this project.`);
+        }
+
+        try {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId); 
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const bks = snap.data().books || [];
+                // Calculate progress (3 books = 100%)
+                let newProgress = Math.min(Math.round(((bks.length + 1) / 3) * 100), 100);
+                await updateDoc(ref, { 
+                    books: arrayUnion({ title, author, pages }), 
+                    progress: newProgress 
+                });
+            }
+        } catch (err) { alert("Could not add book."); }
+    };
+
+    window.signCompletion = async (docId) => {
+        if (!currentUser) return;
+        const parentName = document.getElementById(`parent-${docId}`).value.trim();
+        if (!parentName) return alert("Please enter the Parent/Guardian Name to sign off.");
+        try {
+            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId), { 
+                parentName: parentName 
+            });
+        } catch (err) { alert("Could not save signature."); }
+    };
+
+    window.resetForm = () => { 
+        document.getElementById('projectForm').reset(); 
+        document.getElementById('projectForm').style.display = 'block'; 
+        document.getElementById('successMessage').style.display = 'none'; 
+        document.getElementById('viewDetailsBtn').style.display = 'none'; // hide button on reset
+    };
+
+</script>
+
+</body>
+</html>
