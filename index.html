@@ -238,8 +238,8 @@
 
 <div class="modal-overlay" id="profileModal">
     <div class="login-modal">
-        <h2 class="login-title">One Last Step! 📝</h2>
-        <p class="login-desc">Tell us a little about yourself to finish your profile.</p>
+        <h2 class="login-title" id="profileModalTitle">One Last Step! 📝</h2>
+        <p class="login-desc" id="profileModalDesc">Tell us a little about yourself to finish your profile.</p>
         <form id="profileForm">
             <div class="form-group" style="text-align: left;">
                 <label for="profileName">Your Name</label>
@@ -259,7 +259,8 @@
                     <option value="15">15+ years old</option>
                 </select>
             </div>
-            <button type="submit" class="submit-btn">Complete Profile</button>
+            <button type="submit" class="submit-btn" id="profileSubmitBtn">Complete Profile</button>
+            <button type="button" class="close-modal" id="profileCancelBtn" onclick="toggleProfileModal(false)" style="display:none; width: 100%; margin-top: 1rem;">Cancel</button>
         </form>
     </div>
 </div>
@@ -271,7 +272,13 @@
         <div id="loggedOutNav"><button onclick="toggleModal(true)" class="nav-btn">Get Involved / Login</button></div>
         <div id="loggedInNav" class="user-profile">
             <div class="user-avatar" id="userInitial">U</div>
-            <button onclick="handleLogout()" class="nav-btn" style="border:none; padding: 0.5rem; color: var(--muted);">Logout</button>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;">
+                <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem; line-height: 1;" id="navUserName">User</span>
+                <div style="display: flex; gap: 0.8rem;">
+                    <button onclick="openProfileEdit()" style="background: none; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Edit Profile</button>
+                    <button onclick="handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Logout</button>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
@@ -412,9 +419,11 @@
 <!-- Firebase SDKs -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    // IMPORTED getDocs, query, where, writeBatch for profile syncing 
+    import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
         apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c",
@@ -443,6 +452,20 @@
     window.toggleModal = (show) => { const m = document.getElementById('loginModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     window.toggleProfileModal = (show) => { const m = document.getElementById('profileModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     
+    // Open Profile Editor
+    window.openProfileEdit = () => {
+        if (!currentUserProfile) return;
+        document.getElementById('profileModalTitle').innerText = "Edit Your Profile ✏️";
+        document.getElementById('profileModalDesc').innerText = "Update your details below.";
+        document.getElementById('profileSubmitBtn').innerText = "Save Changes";
+        document.getElementById('profileCancelBtn').style.display = "inline-block";
+        
+        document.getElementById('profileName').value = currentUserProfile.name || "";
+        document.getElementById('profileAge').value = currentUserProfile.age || "";
+        
+        toggleProfileModal(true);
+    };
+
     // Updates Dropdown states to show (Registered) or (Upcoming)
     function updateProjectDropdownUI() {
         const select = document.getElementById('projectChoice');
@@ -549,7 +572,6 @@
         }
     }
 
-
     // Load Projects
     const loadProjects = () => {
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
@@ -618,7 +640,16 @@
                 currentUserProfile = snap.data();
                 updateUIForLoggedIn(user, currentUserProfile);
             } else {
-                toggleModal(false); toggleProfileModal(true);
+                // Setup for new user creation
+                document.getElementById('profileModalTitle').innerText = "One Last Step! 📝";
+                document.getElementById('profileModalDesc').innerText = "Tell us a little about yourself to finish your profile.";
+                document.getElementById('profileSubmitBtn').innerText = "Complete Profile";
+                document.getElementById('profileCancelBtn').style.display = "none";
+                document.getElementById('profileName').value = "";
+                document.getElementById('profileAge').value = "";
+                
+                toggleModal(false); 
+                toggleProfileModal(true);
             }
         } catch (e) { console.error(e); }
     }
@@ -627,18 +658,44 @@
         e.preventDefault(); if (!currentUser) return;
         const name = document.getElementById('profileName').value;
         const age = document.getElementById('profileAge').value;
-        const btn = e.target.querySelector('button'); btn.disabled = true; btn.innerText = "Saving...";
+        const btn = document.getElementById('profileSubmitBtn'); 
+        const originalText = btn.innerText;
+        btn.disabled = true; btn.innerText = "Saving...";
         try {
             const data = { name, age, email: currentUser.email };
             await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid), data);
-            currentUserProfile = data; toggleProfileModal(false); updateUIForLoggedIn(currentUser, data);
-        } catch (err) { alert("Could not save profile."); } finally { btn.disabled = false; btn.innerText = "Complete Profile"; }
+            
+            // Sync updated profile to existing registrations so Admin sees the new name/age
+            const regsRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
+            const q = query(regsRef, where("userId", "==", currentUser.uid));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                const batch = writeBatch(db);
+                querySnapshot.forEach((docSnap) => {
+                    batch.update(docSnap.ref, { name: name, age: age });
+                });
+                await batch.commit();
+            }
+
+            currentUserProfile = data; 
+            toggleProfileModal(false); 
+            updateUIForLoggedIn(currentUser, data);
+        } catch (err) { 
+            console.error(err);
+            alert("Could not save profile."); 
+        } finally { 
+            btn.disabled = false; 
+            btn.innerText = originalText; 
+        }
     });
 
     const updateUIForLoggedIn = (user, profile) => {
         document.getElementById('loggedOutNav').style.display = 'none';
         document.getElementById('loggedInNav').style.display = 'flex';
+        
         document.getElementById('userInitial').innerText = profile && profile.name ? profile.name.charAt(0).toUpperCase() : 'U';
+        document.getElementById('navUserName').innerText = profile && profile.name ? profile.name : "Member";
         document.getElementById('joiningAsDisplay').innerText = profile ? `${profile.name} (Age ${profile.age})` : "Member";
 
         document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'})" class="hero-btn">Register for a Project ↓</button>`;
@@ -655,7 +712,11 @@
     }
 
     window.handleLogin = async () => {
-        try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+        try { 
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            await signInWithRedirect(auth, provider); 
+        } 
         catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
     };
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
