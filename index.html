@@ -420,8 +420,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    
+    // import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // Change this line in your <script type="module">
+    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     // IMPORTED getDocs, query, where, writeBatch for profile syncing 
     import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -711,13 +712,32 @@
         if (unsubscribeLog) unsubscribeLog();
     }
 
+    // window.handleLogin = async () => {
+    //     try { 
+    //         const provider = new GoogleAuthProvider();
+    //         provider.setCustomParameters({ prompt: 'select_account' });
+    //         await signInWithRedirect(auth, provider); 
+    //     } 
+    //     catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
+    // };
+    
     window.handleLogin = async () => {
-        try { 
-            const provider = new GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            await signInWithRedirect(auth, provider); 
-        } 
-        catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
+    const provider = new GoogleAuthProvider();
+    try {
+        // This replaces signInWithRedirect
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Close the login modal since they are now authenticated
+        toggleModal(false);
+        
+        // The onAuthStateChanged listener you already have will 
+        // automatically detect this and update the UI.
+        console.log("Logged in as:", user.displayName);
+    } catch (error) {
+        console.error("Login failed:", error);
+        alert("Sign-in failed. Please try again.");
+    }
     };
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
 

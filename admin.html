@@ -277,7 +277,7 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         
         // FIXED: Imported signInWithRedirect instead of signInWithPopup
-        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Your web app's Firebase configuration
@@ -338,18 +338,37 @@
             }
         });
 
-        window.handleLogin = async () => {
-            try { 
-                const provider = new GoogleAuthProvider();
-                provider.setCustomParameters({ prompt: 'select_account' });
-                // USING REDIRECT INSTEAD OF POPUP TO FIX GITHUB PAGES COOP ISSUE
-                await signInWithRedirect(auth, provider); 
-            } 
-            catch (error) { 
-                document.getElementById('errorMsg').innerText = error.message; 
-                document.getElementById('errorMsg').style.display = 'block'; 
-            }
-        };
+        // window.handleLogin = async () => {
+        //     try { 
+        //         const provider = new GoogleAuthProvider();
+        //         provider.setCustomParameters({ prompt: 'select_account' });
+        //         // USING REDIRECT INSTEAD OF POPUP TO FIX GITHUB PAGES COOP ISSUE
+        //         await signInWithRedirect(auth, provider); 
+        //     } 
+        //     catch (error) { 
+        //         document.getElementById('errorMsg').innerText = error.message; 
+        //         document.getElementById('errorMsg').style.display = 'block'; 
+        //     }
+        // };
+
+    window.handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+        // This replaces signInWithRedirect
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        // Close the login modal since they are now authenticated
+        toggleModal(false);
+        
+        // The onAuthStateChanged listener you already have will 
+        // automatically detect this and update the UI.
+        console.log("Logged in as:", user.displayName);
+    } catch (error) {
+        console.error("Login failed:", error);
+        alert("Sign-in failed. Please try again.");
+    }
+    };
         
         window.handleLogout = () => signOut(auth);
 
