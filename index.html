@@ -249,6 +249,14 @@
                 <label for="profileAge">Your Age</label>
                 <select id="profileAge" class="form-control" required>
                     <option value="" disabled selected>Select age</option>
+                    <option value="0">0 (Infant)</option>
+                    <option value="1">1 year old</option>
+                    <option value="2">2 years old</option>
+                    <option value="3">3 years old</option>
+                    <option value="4">4 years old</option>
+                    <option value="5">5 years old</option>
+                    <option value="6">6 years old</option>
+                    <option value="7">7 years old</option>
                     <option value="8">8 years old</option>
                     <option value="9">9 years old</option>
                     <option value="10">10 years old</option>
@@ -334,9 +342,9 @@
                     <button type="submit" class="submit-btn" id="submitBtn">Sign Me Up!</button>
                 </form>
 
-                <div class="success-message" id="successMessage">
-                    <h3>Awesome, <span id="displayKidName"></span>!</h3>
-                    <p>You are officially signed up. Check your adventure log below to track your progress.</p>
+                <div class="success-message" id="successMessage" style="display:none;">
+                    <h3 style="color:var(--primary); font-family:'Playfair Display', serif; font-size:1.8rem; margin-bottom:0.5rem;">Awesome, <span id="displayKidName"></span>!</h3>
+                    <p style="color:#555;">You are officially signed up. Check your adventure log below to track your progress.</p>
                     <p style="margin-top:1.5rem;"><button onclick="resetForm()" style="background:none; border:none; color:var(--secondary); font-weight:bold; cursor:pointer; text-decoration:underline;">Register for another project</button></p>
                 </div>
 
@@ -420,10 +428,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-    // import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    // Change this line in your <script type="module">
-    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    // IMPORTED getDocs, query, where, writeBatch for profile syncing 
+    import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc, serverTimestamp, arrayUnion, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -448,6 +453,7 @@
     let loadedProjects = {};
     let currentOpenProject = null;
     let userRegisteredProjectIds = new Set(); // Tracks the projects the user is already enrolled in
+    let projectsLoaded = false;
 
     // View Management
     window.toggleModal = (show) => { const m = document.getElementById('loginModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
@@ -467,9 +473,11 @@
         toggleProfileModal(true);
     };
 
-    // Updates Dropdown states to show (Registered) or (Upcoming)
+    // Updates Dropdown states to show (Already Registered) or (Upcoming)
     function updateProjectDropdownUI() {
         const select = document.getElementById('projectChoice');
+        if (!select) return;
+
         Array.from(select.options).forEach(opt => {
             if (!opt.value) return; // Skip placeholder
             const p = loadedProjects[opt.value];
@@ -573,15 +581,33 @@
         }
     }
 
-    // Load Projects
+    // 1. Fixed Projects Fetching: Ensure auth triggers first to bypass Security Rules
+    const initAuth = async () => {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth); // Secures read permissions for visitors
+            }
+        } catch (error) {
+            console.error("Auth init error:", error);
+        }
+    };
+    initAuth();
+
+    // Load Projects into memory
     const loadProjects = () => {
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
             const grid = document.getElementById('dynamicProjectsGrid');
             const select = document.getElementById('projectChoice');
-            grid.innerHTML = ''; select.innerHTML = '<option value="" disabled selected>Choose a project...</option>';
+            grid.innerHTML = ''; 
+            select.innerHTML = '<option value="" disabled selected>Choose a project...</option>';
             loadedProjects = {};
 
-            if (snapshot.empty) { grid.innerHTML = '<p style="text-align:center; width:100%; color: white;">No projects available right now. Check back later!</p>'; return; }
+            if (snapshot.empty) { 
+                grid.innerHTML = '<p style="text-align:center; width:100%; color: var(--muted);">No projects available right now. Check back later!</p>'; 
+                return; 
+            }
 
             snapshot.forEach(docSnap => {
                 const p = docSnap.data();
@@ -606,31 +632,30 @@
             // Sync dropdown disabled states
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
+        }, (error) => {
+            console.error("Error fetching projects:", error);
         });
     }
 
-    loadProjects();
-
-    // Form Event Listener for "View Details" button
-    document.getElementById('projectChoice').addEventListener('change', (e) => {
-        const btn = document.getElementById('viewDetailsBtn');
-        if(e.target.value) {
-            btn.style.display = 'flex';
-            btn.onclick = () => openProjectDetail(e.target.value);
-        } else {
-            btn.style.display = 'none';
-        }
-    });
-
-    // Auth
+    // Auth state changes handler
     onAuthStateChanged(auth, async (user) => {
-        currentUser = user;
-        if (user) await checkUserProfile(user);
-        else {
+        if (!user) return; // Wait for initAuth to finish before processing
+        
+        if (!projectsLoaded) {
+            loadProjects();
+            projectsLoaded = true;
+        }
+
+        if (!user.isAnonymous) {
+            currentUser = user;
+            await checkUserProfile(user);
+        } else {
+            currentUser = null;
             userRegisteredProjectIds.clear();
             updateProjectDropdownUI();
             updateUIForLoggedOut();
         }
+        
         if(currentOpenProject) updateDetailCTA();
     });
 
@@ -711,34 +736,20 @@
         document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: white; color: var(--primary); margin-right: 1rem;">Explore Projects</button><button onclick="toggleModal(true)" class="hero-btn">Login to Register</button>`;
         if (unsubscribeLog) unsubscribeLog();
     }
-
-    // window.handleLogin = async () => {
-    //     try { 
-    //         const provider = new GoogleAuthProvider();
-    //         provider.setCustomParameters({ prompt: 'select_account' });
-    //         await signInWithRedirect(auth, provider); 
-    //     } 
-    //     catch (e) { if(e.code !== 'auth/popup-closed-by-user') alert("Login failed: " + e.message); }
-    // };
     
     window.handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-        // This replaces signInWithRedirect
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        // Close the login modal since they are now authenticated
-        toggleModal(false);
-        
-        // The onAuthStateChanged listener you already have will 
-        // automatically detect this and update the UI.
-        console.log("Logged in as:", user.displayName);
-    } catch (error) {
-        console.error("Login failed:", error);
-        alert("Sign-in failed. Please try again.");
-    }
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // Close the login modal since they are now authenticated
+            toggleModal(false);
+            console.log("Logged in as:", result.user.displayName);
+        } catch (error) {
+            console.error("Login failed:", error);
+            alert("Sign-in failed. Please try again.");
+        }
     };
+    
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
 
     // Registration Dashboard
@@ -789,7 +800,7 @@
                     action = `<div class="action-row"><span style="font-size:0.9rem; font-weight:600; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
                 }
 
-                // Completion block (Applies to both standard and reading projects)
+                // Completion block
                 let completionBlock = '';
                 if (isDone) {
                     if (d.parentName) {
@@ -820,15 +831,21 @@
 
     document.getElementById('projectForm').addEventListener('submit', async (e) => {
         e.preventDefault(); if (!currentUser || !currentUserProfile) return;
-        const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Processing...";
-        const pId = document.getElementById('projectChoice').value; const pData = loadedProjects[pId];
         
-        // Double check just in case
-        if(userRegisteredProjectIds.has(pId)) {
-            alert("You are already registered for this project.");
-            btn.disabled = false; btn.innerText = "Sign Me Up!";
+        const pId = document.getElementById('projectChoice').value; 
+        if (!pId) {
+            alert("Please select a project.");
             return;
         }
+
+        // Secondary lock to prevent bypassing UI
+        if(userRegisteredProjectIds.has(pId)) {
+            alert("You are already registered for this project.");
+            return;
+        }
+
+        const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Processing...";
+        const pData = loadedProjects[pId];
 
         try {
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), {
@@ -837,7 +854,8 @@
                 progress: 0, books: [], timestamp: serverTimestamp()
             });
             document.getElementById('displayKidName').innerText = currentUserProfile.name;
-            document.getElementById('projectForm').style.display = 'none'; document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('projectForm').style.display = 'none'; 
+            document.getElementById('successMessage').style.display = 'block';
         } catch (err) { alert("We couldn't save your spot."); } finally { btn.disabled = false; btn.innerText = "Sign Me Up!"; }
     });
 
