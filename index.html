@@ -755,18 +755,24 @@
     // Registration Dashboard
     function setupRealtimeLog(userId) {
         if (unsubscribeLog) unsubscribeLog();
-        unsubscribeLog = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
+        
+        // SECURITY FIX: Apply query filter to satisfy Firestore Security Rules
+        const q = query(
+            collection(db, 'artifacts', appId, 'public', 'data', 'registrations'),
+            where("userId", "==", userId)
+        );
+
+        unsubscribeLog = onSnapshot(q, (snapshot) => {
             const logContainer = document.getElementById('logContainer'); if (!logContainer) return;
             
             userRegisteredProjectIds.clear(); // Reset tracking set
             const userDocs = []; 
             
             snapshot.forEach(doc => { 
-                if(doc.data().userId === userId) {
-                    const data = doc.data();
-                    userDocs.push({id: doc.id, ...data}); 
-                    userRegisteredProjectIds.add(data.projectId); // Log enrollment
-                } 
+                // We no longer need an 'if' statement here because the database already filtered it!
+                const data = doc.data();
+                userDocs.push({id: doc.id, ...data}); 
+                userRegisteredProjectIds.add(data.projectId); // Log enrollment
             });
 
             // Update Dropdown UI & Detail view after finding all user enrollments
