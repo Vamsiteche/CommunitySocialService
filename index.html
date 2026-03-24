@@ -194,7 +194,7 @@
         /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(27, 67, 50, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .login-modal { background: white; padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; }
+        .login-modal { background: white; padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.open .login-modal { transform: translateY(0); }
         .login-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
         .login-desc { color: var(--muted); margin-bottom: 2rem; }
@@ -267,6 +267,16 @@
                     <option value="15">15+ years old</option>
                 </select>
             </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label for="profilePhone">Phone Number <span style="font-weight: normal; color: #666; font-size: 0.85rem;">(Optional)</span></label>
+                <input type="tel" id="profilePhone" class="form-control" placeholder="e.g. 555-123-4567">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label for="profileSchool">School Name <span style="font-weight: normal; color: #666; font-size: 0.85rem;">(Optional)</span></label>
+                <input type="text" id="profileSchool" class="form-control" placeholder="e.g. Lincoln Elementary">
+            </div>
+
             <button type="submit" class="submit-btn" id="profileSubmitBtn">Complete Profile</button>
             <button type="button" class="close-modal" id="profileCancelBtn" onclick="toggleProfileModal(false)" style="display:none; width: 100%; margin-top: 1rem;">Cancel</button>
         </form>
@@ -452,7 +462,7 @@
     let unsubscribeLog = null;
     let loadedProjects = {};
     let currentOpenProject = null;
-    let userRegisteredProjectIds = new Set(); // Tracks the projects the user is already enrolled in
+    let userRegisteredProjectIds = new Set();
     let projectsLoaded = false;
 
     // View Management
@@ -469,17 +479,18 @@
         
         document.getElementById('profileName').value = currentUserProfile.name || "";
         document.getElementById('profileAge').value = currentUserProfile.age || "";
+        document.getElementById('profilePhone').value = currentUserProfile.phone || "";
+        document.getElementById('profileSchool').value = currentUserProfile.school || "";
         
         toggleProfileModal(true);
     };
 
-    // Updates Dropdown states to show (Already Registered) or (Upcoming)
     function updateProjectDropdownUI() {
         const select = document.getElementById('projectChoice');
         if (!select) return;
 
         Array.from(select.options).forEach(opt => {
-            if (!opt.value) return; // Skip placeholder
+            if (!opt.value) return; 
             const p = loadedProjects[opt.value];
             if (!p) return;
 
@@ -501,7 +512,6 @@
         if(!p) return;
         currentOpenProject = p;
 
-        // Populate DOM
         document.getElementById('dtIcon').innerText = p.icon || '📌';
         document.getElementById('dtTitle').innerText = p.title || 'Project';
         document.getElementById('dtBannerDesc').innerText = p.bannerDesc || p.description || '';
@@ -528,10 +538,7 @@
             addonsEl.innerHTML = p.addons.split('\n').filter(i=>i.trim()).map(i=>`<div class="addon-item">${i}</div>`).join('');
         } else { addonsEl.innerHTML = '<div class="addon-item">🏅 Certificate</div>'; }
 
-        // Manage CTA Button based on Auth, Status, & Enrollment State
         updateDetailCTA();
-
-        // Switch Views
         document.getElementById('homeView').style.display = 'none';
         document.getElementById('projectDetailView').style.display = 'block';
         window.scrollTo(0,0);
@@ -556,7 +563,6 @@
         }
 
         if (currentUser) {
-            // Check if already registered
             if (userRegisteredProjectIds.has(currentOpenProject.id)) {
                 ctaBtn.innerText = "Already Registered ✓";
                 ctaBtn.style.opacity = "0.6";
@@ -581,21 +587,17 @@
         }
     }
 
-    // 1. Fixed Projects Fetching: Ensure auth triggers first to bypass Security Rules
     const initAuth = async () => {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
             } else {
-                await signInAnonymously(auth); // Secures read permissions for visitors
+                await signInAnonymously(auth); 
             }
-        } catch (error) {
-            console.error("Auth init error:", error);
-        }
+        } catch (error) { console.error("Auth init error:", error); }
     };
     initAuth();
 
-    // Load Projects into memory
     const loadProjects = () => {
         onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
             const grid = document.getElementById('dynamicProjectsGrid');
@@ -613,7 +615,6 @@
                 const p = docSnap.data();
                 loadedProjects[docSnap.id] = { ...p, id: docSnap.id };
 
-                // Card (Clickable to open details)
                 grid.innerHTML += `
                     <div class="project-card" onclick="openProjectDetail('${docSnap.id}')">
                         <div class="project-icon">${p.icon || '📌'}</div>
@@ -623,13 +624,11 @@
                     </div>
                 `;
 
-                // Build Dropdown
                 const opt = document.createElement('option');
                 opt.value = docSnap.id;
                 select.appendChild(opt);
             });
             
-            // Sync dropdown disabled states
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
         }, (error) => {
@@ -637,9 +636,8 @@
         });
     }
 
-    // Auth state changes handler
     onAuthStateChanged(auth, async (user) => {
-        if (!user) return; // Wait for initAuth to finish before processing
+        if (!user) return; 
         
         if (!projectsLoaded) {
             loadProjects();
@@ -666,13 +664,14 @@
                 currentUserProfile = snap.data();
                 updateUIForLoggedIn(user, currentUserProfile);
             } else {
-                // Setup for new user creation
                 document.getElementById('profileModalTitle').innerText = "One Last Step! 📝";
                 document.getElementById('profileModalDesc').innerText = "Tell us a little about yourself to finish your profile.";
                 document.getElementById('profileSubmitBtn').innerText = "Complete Profile";
                 document.getElementById('profileCancelBtn').style.display = "none";
                 document.getElementById('profileName').value = "";
                 document.getElementById('profileAge').value = "";
+                document.getElementById('profilePhone').value = "";
+                document.getElementById('profileSchool').value = "";
                 
                 toggleModal(false); 
                 toggleProfileModal(true);
@@ -682,16 +681,20 @@
 
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault(); if (!currentUser) return;
-        const name = document.getElementById('profileName').value;
+        const name = document.getElementById('profileName').value.trim();
         const age = document.getElementById('profileAge').value;
+        const phone = document.getElementById('profilePhone').value.trim();
+        const school = document.getElementById('profileSchool').value.trim();
+
         const btn = document.getElementById('profileSubmitBtn'); 
         const originalText = btn.innerText;
         btn.disabled = true; btn.innerText = "Saving...";
+
         try {
-            const data = { name, age, email: currentUser.email };
+            const data = { name, age, phone, school, email: currentUser.email };
             await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid), data);
             
-            // Sync updated profile to existing registrations so Admin sees the new name/age
+            // Sync updated profile to existing registrations
             const regsRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
             const q = query(regsRef, where("userId", "==", currentUser.uid));
             const querySnapshot = await getDocs(q);
@@ -699,7 +702,7 @@
             if (!querySnapshot.empty) {
                 const batch = writeBatch(db);
                 querySnapshot.forEach((docSnap) => {
-                    batch.update(docSnap.ref, { name: name, age: age });
+                    batch.update(docSnap.ref, { name: name, age: age, phone: phone, school: school });
                 });
                 await batch.commit();
             }
@@ -741,7 +744,6 @@
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            // Close the login modal since they are now authenticated
             toggleModal(false);
             console.log("Logged in as:", result.user.displayName);
         } catch (error) {
@@ -752,11 +754,8 @@
     
     window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
 
-    // Registration Dashboard
     function setupRealtimeLog(userId) {
         if (unsubscribeLog) unsubscribeLog();
-        
-        // SECURITY FIX: Apply query filter to satisfy Firestore Security Rules
         const q = query(
             collection(db, 'artifacts', appId, 'public', 'data', 'registrations'),
             where("userId", "==", userId)
@@ -765,17 +764,15 @@
         unsubscribeLog = onSnapshot(q, (snapshot) => {
             const logContainer = document.getElementById('logContainer'); if (!logContainer) return;
             
-            userRegisteredProjectIds.clear(); // Reset tracking set
+            userRegisteredProjectIds.clear(); 
             const userDocs = []; 
             
             snapshot.forEach(doc => { 
-                // We no longer need an 'if' statement here because the database already filtered it!
                 const data = doc.data();
                 userDocs.push({id: doc.id, ...data}); 
-                userRegisteredProjectIds.add(data.projectId); // Log enrollment
+                userRegisteredProjectIds.add(data.projectId); 
             });
 
-            // Update Dropdown UI & Detail view after finding all user enrollments
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
 
@@ -787,11 +784,13 @@
                 let action = '';
                 
                 if (isRead) {
-                    const bks = d.books || []; const maxBks = 3;
+                    const bks = d.books || []; 
+                    const targetBooks = d.minBooks || 3; // Dynamically pull custom target
+                    
                     let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:#aaa; font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:#888; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
                     let form = '';
                     
-                    if (bks.length < maxBks) {
+                    if (bks.length < targetBooks) {
                         form = `
                             <div class="book-form">
                                 <input type="text" id="title-${d.id}" class="book-input" placeholder="Book Title" required>
@@ -806,7 +805,6 @@
                     action = `<div class="action-row"><span style="font-size:0.9rem; font-weight:600; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
                 }
 
-                // Completion block
                 let completionBlock = '';
                 if (isDone) {
                     if (d.parentName) {
@@ -844,7 +842,6 @@
             return;
         }
 
-        // Secondary lock to prevent bypassing UI
         if(userRegisteredProjectIds.has(pId)) {
             alert("You are already registered for this project.");
             return;
@@ -855,9 +852,19 @@
 
         try {
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), {
-                userId: currentUser.uid, name: currentUserProfile.name, age: currentUserProfile.age, email: currentUser.email,
-                projectId: pId, projectName: pData ? pData.title : 'Unknown', projectType: pData ? pData.type : 'standard',
-                progress: 0, books: [], timestamp: serverTimestamp()
+                userId: currentUser.uid, 
+                name: currentUserProfile.name, 
+                age: currentUserProfile.age, 
+                phone: currentUserProfile.phone || '', 
+                school: currentUserProfile.school || '', 
+                email: currentUser.email,
+                projectId: pId, 
+                projectName: pData ? pData.title : 'Unknown', 
+                projectType: pData ? pData.type : 'standard',
+                minBooks: pData ? (pData.minBooks || 3) : 3, // Save target books onto the reg form
+                progress: 0, 
+                books: [], 
+                timestamp: serverTimestamp()
             });
             document.getElementById('displayKidName').innerText = currentUserProfile.name;
             document.getElementById('projectForm').style.display = 'none'; 
@@ -882,7 +889,6 @@
             return alert("Please enter title, author, and number of pages.");
         }
 
-        // Get minimum page requirement (fallback to 50 if missing)
         const pData = loadedProjects[projectId];
         const minPages = (pData && pData.minPages) ? pData.minPages : 50;
 
@@ -895,8 +901,9 @@
             const snap = await getDoc(ref);
             if (snap.exists()) {
                 const bks = snap.data().books || [];
-                // Calculate progress (3 books = 100%)
-                let newProgress = Math.min(Math.round(((bks.length + 1) / 3) * 100), 100);
+                const targetBooks = snap.data().minBooks || 3; // Calculate dynamically
+                
+                let newProgress = Math.min(Math.round(((bks.length + 1) / targetBooks) * 100), 100);
                 await updateDoc(ref, { 
                     books: arrayUnion({ title, author, pages }), 
                     progress: newProgress 
@@ -920,7 +927,7 @@
         document.getElementById('projectForm').reset(); 
         document.getElementById('projectForm').style.display = 'block'; 
         document.getElementById('successMessage').style.display = 'none'; 
-        document.getElementById('viewDetailsBtn').style.display = 'none'; // hide button on reset
+        document.getElementById('viewDetailsBtn').style.display = 'none'; 
     };
 
 </script>

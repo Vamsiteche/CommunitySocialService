@@ -63,7 +63,7 @@
         .pm-input, .pm-textarea { width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius: 8px; font-family: inherit; }
         .pm-textarea { resize: vertical; min-height: 80px; }
         .pm-help { font-size: 0.75rem; color: #6B7280; margin-top: 0.25rem; display: block; }
-        .pm-btn { width: 100%; padding: 1rem; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin-top: 1rem;}
+        .pm-btn { flex: 1; padding: 1rem; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
         .pm-btn:hover { background: #D65A3C; }
 
         .projects-list { display: grid; grid-template-columns: 1fr; gap: 1rem; }
@@ -72,7 +72,11 @@
         .ap-icon { font-size: 2rem; background: #F3F4F6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
         .ap-title { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
         .ap-type { font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
+        
+        .ap-edit { color: #047857; background: #D1FAE5; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        .ap-edit:hover { background: #A7F3D0; }
         .ap-delete { color: #DC2626; background: #FEE2E2; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+        .ap-delete:hover { background: #FECACA; }
 
         @media (max-width: 1024px) { .pm-grid { grid-template-columns: 1fr; } .pm-form-row { grid-template-columns: 1fr; } }
     </style>
@@ -141,8 +145,8 @@
                     <thead>
                         <tr>
                             <th>Participant</th>
-                            <th>Age</th>
-                            <th>Email</th>
+                            <th>Age / School</th>
+                            <th>Contact Info</th>
                             <th>Project</th>
                             <th>Progress</th>
                             <th>Details</th>
@@ -157,8 +161,8 @@
         <div id="view-projects" style="display: none;">
             <div class="pm-grid">
                 <!-- Add Form -->
-                <div class="add-project-card">
-                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Create Project Page</h3>
+                <div class="add-project-card" id="projectFormCard">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;" id="formTitle">Create Project Page</h3>
                     <form id="addProjectForm">
                         
                         <h4 style="margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">1. Basic Info (Cards & Banners)</h4>
@@ -203,10 +207,17 @@
                         </div>
 
                         <!-- Dynamic settings based on Project Type -->
-                        <div class="pm-form-group" id="minPagesWrapper" style="display: none; background: #F0FFF4; padding: 1rem; border-radius: 8px; border: 1px solid #C6F6D5;">
-                            <label style="color: #166534;">Minimum Pages per Book (Reading Logs Only)</label>
-                            <input type="number" id="pMinPages" class="pm-input" placeholder="e.g. 50" value="50">
-                            <span class="pm-help">Books shorter than this won't be accepted by the system.</span>
+                        <div class="pm-form-row" id="readingSettingsWrapper" style="display: none; background: #F0FFF4; padding: 1rem; border-radius: 8px; border: 1px solid #C6F6D5; margin-bottom: 1.25rem;">
+                            <div class="pm-form-group" style="margin-bottom: 0;">
+                                <label style="color: #166534;">Min Pages / Book</label>
+                                <input type="number" id="pMinPages" class="pm-input" placeholder="e.g. 50" value="50">
+                                <span class="pm-help">Books shorter than this are blocked.</span>
+                            </div>
+                            <div class="pm-form-group" style="margin-bottom: 0;">
+                                <label style="color: #166534;">Target Books (for 100%)</label>
+                                <input type="number" id="pMinBooks" class="pm-input" placeholder="e.g. 3" value="3">
+                                <span class="pm-help">Number of books needed to complete.</span>
+                            </div>
                         </div>
 
                         <h4 style="margin: 2rem 0 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">2. Details Section</h4>
@@ -255,7 +266,10 @@
                             <textarea id="pAddons" class="pm-textarea" placeholder="🏅 Certificate of Completion&#10;📱 Social Media Shout-Out"></textarea>
                         </div>
 
-                        <button type="submit" class="pm-btn">Publish Project Page</button>
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="pm-btn" id="submitProjectBtn">Publish Project Page</button>
+                            <button type="button" class="pm-btn" id="cancelEditBtn" style="display:none; background: #6B7280;" onclick="window.cancelEdit()">Cancel Edit</button>
+                        </div>
                     </form>
                 </div>
 
@@ -272,15 +286,12 @@
 
     <!-- Firebase -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
-        
-        // FIXED: Imported signInWithRedirect instead of signInWithPopup
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Added updateDoc import
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c",
             authDomain: "community-social-services.firebaseapp.com",
@@ -291,7 +302,6 @@
             measurementId: "G-QRZXDBPT09"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig); 
         const analytics = getAnalytics(app);
         const auth = getAuth(app); 
@@ -300,9 +310,11 @@
 
         let projectChart = null;
         let existingProjectTitles = new Set();
+        let adminLoadedProjects = {}; // Store raw project data for editing
+        let editingProjectId = null;  // Track if we are currently editing
 
         document.getElementById('pType').addEventListener('change', function(e) {
-            document.getElementById('minPagesWrapper').style.display = (e.target.value === 'reading') ? 'block' : 'none';
+            document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
         });
 
         window.switchTab = (tabName) => {
@@ -312,15 +324,10 @@
             document.getElementById('view-projects').style.display = tabName === 'projects' ? 'block' : 'none';
         }
 
-        // ==========================================
-        // UI AUTHORIZATION CHECK
-        // (Real security is handled by the Firestore Rules!)
-        // ==========================================
         const AUTHORIZED_ADMIN_EMAIL = "communityequityinc@gmail.com";
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // UI Check: Ensure the user matches the strict admin email
                 if (user.email.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
                     alert("Access Denied: Your email (" + user.email + ") is not authorized.");
                     signOut(auth);
@@ -338,37 +345,17 @@
             }
         });
 
-        // window.handleLogin = async () => {
-        //     try { 
-        //         const provider = new GoogleAuthProvider();
-        //         provider.setCustomParameters({ prompt: 'select_account' });
-        //         // USING REDIRECT INSTEAD OF POPUP TO FIX GITHUB PAGES COOP ISSUE
-        //         await signInWithRedirect(auth, provider); 
-        //     } 
-        //     catch (error) { 
-        //         document.getElementById('errorMsg').innerText = error.message; 
-        //         document.getElementById('errorMsg').style.display = 'block'; 
-        //     }
-        // };
-
-    window.handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-        // This replaces signInWithRedirect
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        // Close the login modal since they are now authenticated
-        toggleModal(false);
-        
-        // The onAuthStateChanged listener you already have will 
-        // automatically detect this and update the UI.
-        console.log("Logged in as:", user.displayName);
-    } catch (error) {
-        console.error("Login failed:", error);
-        alert("Sign-in failed. Please try again.");
-    }
-    };
+        window.handleLogin = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log("Logged in as:", user.displayName);
+            } catch (error) {
+                console.error("Login failed:", error);
+                alert("Sign-in failed. Please try again.");
+            }
+        };
         
         window.handleLogout = () => signOut(auth);
 
@@ -405,7 +392,8 @@
                 let detailsHtml = '';
                 if (d.projectType === 'reading') {
                     const booksRead = d.books ? d.books.length : 0;
-                    detailsHtml += `<div style="font-weight: 600;">${booksRead} Books Read</div>`;
+                    const target = d.minBooks || 3;
+                    detailsHtml += `<div style="font-weight: 600;">${booksRead} / ${target} Books Read</div>`;
                     if (d.books && d.books.length > 0) {
                         detailsHtml += `<ul style="padding-left: 1rem; margin: 0.5rem 0 0 0; list-style: disc; font-size: 0.85rem; color: #555;">`;
                         d.books.forEach(b => {
@@ -421,11 +409,17 @@
                     detailsHtml += `<div style="color:var(--primary); font-weight:600; margin-top: 0.5rem; font-size: 0.85rem;">Signed: ${d.parentName}</div>`;
                 }
 
+                let contactInfo = d.email || 'N/A';
+                if (d.phone) contactInfo += `<br><span style="color:#6B7280; font-size:0.85rem;">📞 ${d.phone}</span>`;
+                
+                let ageSchool = d.age || 'N/A';
+                if (d.school) ageSchool += `<br><span style="color:#6B7280; font-size:0.85rem;">🏫 ${d.school}</span>`;
+
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${d.name}</strong></td>
-                        <td>${d.age}</td>
-                        <td>${d.email || 'N/A'}</td>
+                        <td>${ageSchool}</td>
+                        <td>${contactInfo}</td>
                         <td>${d.projectName}</td>
                         <td><span class="status-pill ${isComplete ? 'status-complete' : 'status-active'}">${d.progress || 0}%</span></td>
                         <td>${detailsHtml}</td>
@@ -438,62 +432,156 @@
             onSnapshot(projectsRef, (snapshot) => {
                 const container = document.getElementById('projectsListContainer'); container.innerHTML = '';
                 existingProjectTitles.clear();
+                adminLoadedProjects = {};
                 
                 if (snapshot.empty) { container.innerHTML = '<p style="color:#666; font-style:italic;">No projects yet. Add one!</p>'; return; }
                 
                 snapshot.forEach(docSnap => {
                     const p = docSnap.data();
                     existingProjectTitles.add(p.title.trim().toLowerCase());
+                    adminLoadedProjects[docSnap.id] = { id: docSnap.id, ...p };
                     
-                    const pTypeStr = p.type === 'reading' ? `📖 Book Log (Min ${p.minPages || 50} pgs)` : '📊 Standard Progress';
+                    const pTypeStr = p.type === 'reading' ? `📖 Book Log (Target: ${p.minBooks || 3} books, Min ${p.minPages || 50} pgs)` : '📊 Standard Progress';
                     
-                    container.innerHTML += `<div class="admin-project-card"><div class="ap-header"><div class="ap-icon">${p.icon}</div><button class="ap-delete" onclick="window.deleteProject('${docSnap.id}')">Delete</button></div><div class="ap-title">${p.title}</div><p style="font-size:0.85rem; color:#666; margin: 0.5rem 0;">${p.description}</p><div class="ap-type">${pTypeStr} ${p.status === 'upcoming' ? ' • 🟡 Upcoming' : ' • 🟢 Open'}</div></div>`;
+                    container.innerHTML += `
+                        <div class="admin-project-card">
+                            <div class="ap-header">
+                                <div class="ap-icon">${p.icon}</div>
+                                <div style="display:flex; gap:0.5rem;">
+                                    <button class="ap-edit" onclick="window.editProject('${docSnap.id}')">Edit</button>
+                                    <button class="ap-delete" onclick="window.deleteProject('${docSnap.id}')">Delete</button>
+                                </div>
+                            </div>
+                            <div class="ap-title">${p.title}</div>
+                            <p style="font-size:0.85rem; color:#666; margin: 0.5rem 0;">${p.description}</p>
+                            <div class="ap-type">${pTypeStr} ${p.status === 'upcoming' ? ' • 🟡 Upcoming' : ' • 🟢 Open'}</div>
+                        </div>`;
                 });
             }, (error) => {
                 console.error("Database access blocked by server rules.", error);
             });
 
+            // EDIT FUNCTION
+            window.editProject = (id) => {
+                const p = adminLoadedProjects[id];
+                if (!p) return;
+
+                editingProjectId = id;
+                
+                // Update UI for Edit Mode
+                document.getElementById('formTitle').innerText = "Edit Project Page";
+                document.getElementById('submitProjectBtn').innerText = "Update Project";
+                document.getElementById('cancelEditBtn').style.display = "block";
+
+                // Populate Fields
+                document.getElementById('pTitle').value = p.title || '';
+                document.getElementById('pIcon').value = p.icon || '';
+                document.getElementById('pBadge').value = p.badge || '';
+                document.getElementById('pDesc').value = p.description || '';
+                document.getElementById('pBannerDesc').value = p.bannerDesc || '';
+                
+                document.getElementById('pType').value = p.type || 'standard';
+                document.getElementById('pStatus').value = p.status || 'open';
+                
+                document.getElementById('pMinPages').value = p.minPages || 50;
+                document.getElementById('pMinBooks').value = p.minBooks || 3;
+                
+                document.getElementById('pDuration').value = p.duration || '';
+                document.getElementById('pLocation').value = p.location || '';
+                document.getElementById('pParticipants').value = p.participants || '';
+                document.getElementById('pRules').value = p.rules || '';
+                document.getElementById('pVerification').value = p.verification || '';
+                
+                document.getElementById('pRewardTitle').value = p.rewardTitle || '';
+                document.getElementById('pRewardDesc').value = p.rewardDesc || '';
+                document.getElementById('pAddons').value = p.addons || '';
+
+                // Handle conditional visibility
+                document.getElementById('readingSettingsWrapper').style.display = (p.type === 'reading') ? 'flex' : 'none';
+
+                // Scroll to the form
+                document.getElementById('projectFormCard').scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // CANCEL EDIT
+            window.cancelEdit = () => {
+                editingProjectId = null;
+                document.getElementById('addProjectForm').reset();
+                document.getElementById('formTitle').innerText = "Create Project Page";
+                document.getElementById('submitProjectBtn').innerText = "Publish Project Page";
+                document.getElementById('cancelEditBtn').style.display = "none";
+                document.getElementById('readingSettingsWrapper').style.display = 'none';
+            };
+
+            // FORM SUBMISSION (Handles both Add and Edit)
             document.getElementById('addProjectForm').addEventListener('submit', async (e) => {
                 e.preventDefault(); 
-                const btn = e.target.querySelector('button'); 
+                const btn = document.getElementById('submitProjectBtn');
                 const origText = btn.innerText; 
                 
                 const newTitle = document.getElementById('pTitle').value.trim();
-                if(existingProjectTitles.has(newTitle.toLowerCase())) {
+                
+                // If we are editing, we allow the title to remain the same as its original title.
+                // Otherwise, check if the title already exists to prevent duplicates.
+                const isTitleUnchangedDuringEdit = editingProjectId && adminLoadedProjects[editingProjectId] && adminLoadedProjects[editingProjectId].title.trim().toLowerCase() === newTitle.toLowerCase();
+                
+                if(!isTitleUnchangedDuringEdit && existingProjectTitles.has(newTitle.toLowerCase())) {
                     alert("A project with this title already exists. Please choose a unique name.");
                     return;
                 }
                 
-                btn.disabled = true; btn.innerText = "Creating...";
+                btn.disabled = true; 
+                btn.innerText = editingProjectId ? "Updating..." : "Creating...";
+                
+                const projectData = {
+                    title: newTitle,
+                    badge: document.getElementById('pBadge').value,
+                    description: document.getElementById('pDesc').value,
+                    bannerDesc: document.getElementById('pBannerDesc').value,
+                    icon: document.getElementById('pIcon').value,
+                    type: document.getElementById('pType').value,
+                    status: document.getElementById('pStatus').value,
+                    minPages: parseInt(document.getElementById('pMinPages').value) || 50,
+                    minBooks: parseInt(document.getElementById('pMinBooks').value) || 3,
+                    duration: document.getElementById('pDuration').value,
+                    location: document.getElementById('pLocation').value,
+                    participants: document.getElementById('pParticipants').value,
+                    rules: document.getElementById('pRules').value,
+                    verification: document.getElementById('pVerification').value,
+                    rewardTitle: document.getElementById('pRewardTitle').value,
+                    rewardDesc: document.getElementById('pRewardDesc').value,
+                    addons: document.getElementById('pAddons').value
+                };
+
                 try {
-                    await addDoc(projectsRef, {
-                        title: newTitle,
-                        badge: document.getElementById('pBadge').value,
-                        description: document.getElementById('pDesc').value,
-                        bannerDesc: document.getElementById('pBannerDesc').value,
-                        icon: document.getElementById('pIcon').value,
-                        type: document.getElementById('pType').value,
-                        status: document.getElementById('pStatus').value,
-                        minPages: parseInt(document.getElementById('pMinPages').value) || 50,
-                        duration: document.getElementById('pDuration').value,
-                        location: document.getElementById('pLocation').value,
-                        participants: document.getElementById('pParticipants').value,
-                        rules: document.getElementById('pRules').value,
-                        verification: document.getElementById('pVerification').value,
-                        rewardTitle: document.getElementById('pRewardTitle').value,
-                        rewardDesc: document.getElementById('pRewardDesc').value,
-                        addons: document.getElementById('pAddons').value,
-                        timestamp: serverTimestamp()
-                    });
-                    e.target.reset();
-                    document.getElementById('minPagesWrapper').style.display = 'none';
-                } catch (err) { console.error(err); alert("Failed to add project. Make sure your server rules allow this."); } 
-                finally { btn.disabled = false; btn.innerText = origText; }
+                    if (editingProjectId) {
+                        // Update existing document
+                        const projectDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'projects', editingProjectId);
+                        await updateDoc(projectDocRef, projectData);
+                        alert("Project updated successfully!");
+                        window.cancelEdit(); // resets everything
+                    } else {
+                        // Create new document
+                        projectData.timestamp = serverTimestamp();
+                        await addDoc(projectsRef, projectData);
+                        e.target.reset();
+                        document.getElementById('readingSettingsWrapper').style.display = 'none';
+                    }
+                } catch (err) { 
+                    console.error(err); 
+                    alert("Failed to process request. Make sure your server rules allow this."); 
+                } finally { 
+                    btn.disabled = false; 
+                    btn.innerText = origText; 
+                }
             });
 
             window.deleteProject = async (id) => {
-                if(confirm('Delete this project?')) { 
+                if(confirm('Are you sure you want to delete this project?')) { 
                     try { 
+                        // If we delete the project we are currently editing, cancel the edit mode
+                        if (editingProjectId === id) window.cancelEdit();
+                        
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); 
                     } catch (err) { 
                         alert("Failed to delete. You might not have server permissions."); 
