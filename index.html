@@ -236,6 +236,7 @@
     </div>
 </div>
 
+<!-- Profile Modal -->
 <div class="modal-overlay" id="profileModal">
     <div class="login-modal">
         <h2 class="login-title" id="profileModalTitle">One Last Step! 📝</h2>
@@ -283,18 +284,43 @@
     </div>
 </div>
 
+<!-- Contact Us Modal -->
+<div class="modal-overlay" id="contactModal">
+    <div class="login-modal" style="text-align: left; max-width: 350px;">
+        <h2 class="login-title" style="text-align: center;">Contact Us 📬</h2>
+        <p class="login-desc" style="text-align: center; margin-bottom: 2rem;">We'd love to hear from you!</p>
+        
+        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
+            <strong style="color: var(--primary);">Contact Person:</strong><br> Vibha Chunduri
+        </div>
+        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
+            <strong style="color: var(--primary);">Email:</strong><br> <a href="mailto:communityequityinc@gmail.com" style="color: var(--secondary); font-weight: 600; text-decoration: none;">communityequityinc@gmail.com</a>
+        </div>
+        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
+            <strong style="color: var(--primary);">Phone:</strong><br> <a href="tel:+13022904723" style="color: var(--secondary); font-weight: 600; text-decoration: none;">+1 (302) 290-4723</a>
+        </div>
+        <div style="margin-bottom: 2rem; color: #444; line-height: 1.4;">
+            <strong style="color: var(--primary);">Address:</strong><br> TX, USA
+        </div>
+
+        <button class="submit-btn" onclick="toggleContactModal(false)">Close</button>
+    </div>
+</div>
+
 <!-- NAV -->
 <nav>
     <a href="#" class="logo" onclick="closeProjectDetail()">CommunityEquity<span>Inc</span></a>
     <div class="nav-actions">
+        <button onclick="toggleContactModal(true)" class="nav-btn" style="border-color: var(--secondary); color: var(--secondary);">Contact Us</button>
         <div id="loggedOutNav"><button onclick="toggleModal(true)" class="nav-btn">Get Involved / Login</button></div>
         <div id="loggedInNav" class="user-profile">
             <div class="user-avatar" id="userInitial">U</div>
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;">
                 <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem; line-height: 1;" id="navUserName">User</span>
                 <div style="display: flex; gap: 0.8rem;">
-                    <button onclick="openProfileEdit()" style="background: none; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Edit Profile</button>
-                    <button onclick="handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Logout</button>
+                    <!-- Fixed Edit/Logout Action Buttons -->
+                    <button onclick="window.openProfileEdit()" style="background: none; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Edit Profile</button>
+                    <button onclick="window.handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Logout</button>
                 </div>
             </div>
         </div>
@@ -460,7 +486,7 @@
     let currentUser = null; 
     let currentUserProfile = null; 
     let unsubscribeLog = null;
-    let unsubscribeProjects = null; // Store projects listener as well, just in case
+    let unsubscribeProjects = null;
     let loadedProjects = {};
     let currentOpenProject = null;
     let userRegisteredProjectIds = new Set();
@@ -469,19 +495,20 @@
     // View Management
     window.toggleModal = (show) => { const m = document.getElementById('loginModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     window.toggleProfileModal = (show) => { const m = document.getElementById('profileModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
+    window.toggleContactModal = (show) => { const m = document.getElementById('contactModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     
-    // Open Profile Editor
+    // Fix: More resilient Edit Profile logic
     window.openProfileEdit = () => {
-        if (!currentUserProfile) return;
+        const profile = currentUserProfile || {}; // Fallback in case memory fails
         document.getElementById('profileModalTitle').innerText = "Edit Your Profile ✏️";
         document.getElementById('profileModalDesc').innerText = "Update your details below.";
         document.getElementById('profileSubmitBtn').innerText = "Save Changes";
         document.getElementById('profileCancelBtn').style.display = "inline-block";
         
-        document.getElementById('profileName').value = currentUserProfile.name || "";
-        document.getElementById('profileAge').value = currentUserProfile.age || "";
-        document.getElementById('profilePhone').value = currentUserProfile.phone || "";
-        document.getElementById('profileSchool').value = currentUserProfile.school || "";
+        document.getElementById('profileName').value = profile.name || "";
+        document.getElementById('profileAge').value = profile.age || "";
+        document.getElementById('profilePhone').value = profile.phone || "";
+        document.getElementById('profileSchool').value = profile.school || "";
         
         toggleProfileModal(true);
     };
@@ -563,7 +590,7 @@
             return;
         }
 
-        if (currentUser) {
+        if (currentUser && !currentUser.isAnonymous) {
             if (userRegisteredProjectIds.has(currentOpenProject.id)) {
                 ctaBtn.innerText = "Already Registered ✓";
                 ctaBtn.style.opacity = "0.6";
@@ -639,12 +666,18 @@
         });
     }
 
+    // Call loadProjects immediately! Don't wait for auth.
+    loadProjects();
+
     onAuthStateChanged(auth, async (user) => {
-        if (!user) return; 
-        
-        if (!projectsLoaded) {
-            loadProjects();
-            projectsLoaded = true;
+        if (!user) {
+            currentUser = null;
+            currentUserProfile = null;
+            userRegisteredProjectIds.clear();
+            updateProjectDropdownUI();
+            updateUIForLoggedOut();
+            if(currentOpenProject) updateDetailCTA();
+            return; 
         }
 
         if (!user.isAnonymous) {
@@ -652,6 +685,7 @@
             await checkUserProfile(user);
         } else {
             currentUser = null;
+            currentUserProfile = null;
             userRegisteredProjectIds.clear();
             updateProjectDropdownUI();
             updateUIForLoggedOut();
@@ -737,11 +771,12 @@
     }
 
     const updateUIForLoggedOut = () => {
-        document.getElementById('loggedOutNav').style.display = 'block'; document.getElementById('loggedInNav').style.display = 'none';
-        const sc = document.getElementById('secureContent'); sc.classList.remove('visible'); setTimeout(() => sc.style.display = 'none', 300);
+        document.getElementById('loggedOutNav').style.display = 'block'; 
+        document.getElementById('loggedInNav').style.display = 'none';
+        const sc = document.getElementById('secureContent'); 
+        sc.classList.remove('visible'); 
+        setTimeout(() => sc.style.display = 'none', 300);
         document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: white; color: var(--primary); margin-right: 1rem;">Explore Projects</button><button onclick="toggleModal(true)" class="hero-btn">Login to Register</button>`;
-        
-        // Note: We intentionally do NOT unsubscribe from projects here, so logged-out users still see real-time project updates!
     }
     
     window.handleLogin = async () => {
@@ -756,8 +791,8 @@
         }
     };
     
+    // Fix: More resilient Logout logic
     window.handleLogout = async () => {
-        // Safely detach the secure registration listener BEFORE destroying the auth token
         if (unsubscribeLog) {
             unsubscribeLog();
             unsubscribeLog = null;
@@ -766,6 +801,8 @@
         try {
             await signOut(auth);
             currentUserProfile = null;
+            // Restore anonymous session so projects don't break
+            await signInAnonymously(auth); 
         } catch (error) {
             console.error("Logout error:", error);
         }
@@ -802,7 +839,7 @@
                 
                 if (isRead) {
                     const bks = d.books || []; 
-                    const targetBooks = d.minBooks || 3; // Dynamically pull custom target
+                    const targetBooks = d.minBooks || 3; 
                     
                     let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:#aaa; font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:#888; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
                     let form = '';
