@@ -460,6 +460,7 @@
     let currentUser = null; 
     let currentUserProfile = null; 
     let unsubscribeLog = null;
+    let unsubscribeProjects = null; // Store projects listener as well, just in case
     let loadedProjects = {};
     let currentOpenProject = null;
     let userRegisteredProjectIds = new Set();
@@ -599,7 +600,9 @@
     initAuth();
 
     const loadProjects = () => {
-        onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
+        if (unsubscribeProjects) unsubscribeProjects(); // Clean up existing listener if reloading
+        
+        unsubscribeProjects = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
             const grid = document.getElementById('dynamicProjectsGrid');
             const select = document.getElementById('projectChoice');
             grid.innerHTML = ''; 
@@ -737,7 +740,8 @@
         document.getElementById('loggedOutNav').style.display = 'block'; document.getElementById('loggedInNav').style.display = 'none';
         const sc = document.getElementById('secureContent'); sc.classList.remove('visible'); setTimeout(() => sc.style.display = 'none', 300);
         document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: white; color: var(--primary); margin-right: 1rem;">Explore Projects</button><button onclick="toggleModal(true)" class="hero-btn">Login to Register</button>`;
-        if (unsubscribeLog) unsubscribeLog();
+        
+        // Note: We intentionally do NOT unsubscribe from projects here, so logged-out users still see real-time project updates!
     }
     
     window.handleLogin = async () => {
@@ -752,7 +756,20 @@
         }
     };
     
-    window.handleLogout = () => { signOut(auth); currentUserProfile = null; };
+    window.handleLogout = async () => {
+        // Safely detach the secure registration listener BEFORE destroying the auth token
+        if (unsubscribeLog) {
+            unsubscribeLog();
+            unsubscribeLog = null;
+        }
+
+        try {
+            await signOut(auth);
+            currentUserProfile = null;
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
+    };
 
     function setupRealtimeLog(userId) {
         if (unsubscribeLog) unsubscribeLog();

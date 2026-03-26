@@ -312,6 +312,10 @@
         let existingProjectTitles = new Set();
         let adminLoadedProjects = {}; // Store raw project data for editing
         let editingProjectId = null;  // Track if we are currently editing
+        
+        // Add variables to store our active listeners
+        let unsubscribeRegistrations = null;
+        let unsubscribeProjects = null;
 
         document.getElementById('pType').addEventListener('change', function(e) {
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
@@ -357,10 +361,23 @@
             }
         };
         
-        window.handleLogout = () => signOut(auth);
+        window.handleLogout = async () => {
+            // Safely detach all database listeners BEFORE logging out
+            if (unsubscribeRegistrations) unsubscribeRegistrations();
+            if (unsubscribeProjects) unsubscribeProjects();
+            
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
 
         function setupDashboard() {
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
+            // Detach previous listener if it exists to avoid duplicates
+            if (unsubscribeRegistrations) unsubscribeRegistrations();
+            
+            unsubscribeRegistrations = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
                 const allDocs = []; const projectCounts = {}; let totalAge = 0; let completedCount = 0;
                 snapshot.forEach(doc => {
                     const d = doc.data(); allDocs.push(d);
@@ -429,7 +446,11 @@
 
         function setupProjectManager() {
             const projectsRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
-            onSnapshot(projectsRef, (snapshot) => {
+            
+            // Detach previous listener if it exists
+            if (unsubscribeProjects) unsubscribeProjects();
+            
+            unsubscribeProjects = onSnapshot(projectsRef, (snapshot) => {
                 const container = document.getElementById('projectsListContainer'); container.innerHTML = '';
                 existingProjectTitles.clear();
                 adminLoadedProjects = {};
