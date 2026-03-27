@@ -119,7 +119,6 @@
         .cta-btn { display: inline-block; background: white; color: var(--secondary); padding: 0.9rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: transform 0.2s; cursor: pointer; border:none; }
         .cta-btn:hover { transform: translateY(-2px); }
 
-
         /* Secure Content Wrapper (Registration & Log) */
         #secureContent { display: none; opacity: 0; transition: opacity 0.5s ease; background: white; }
         #secureContent.visible { opacity: 1; }
@@ -297,13 +296,24 @@
             <strong style="color: var(--primary);">Email:</strong><br> <a href="mailto:communityequityinc@gmail.com" style="color: var(--secondary); font-weight: 600; text-decoration: none;">communityequityinc@gmail.com</a>
         </div>
         <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
-            <strong style="color: var(--primary);">Phone:</strong><br> <a href="tel:+13022904723" style="color: var(--secondary); font-weight: 600; text-decoration: none;">+1 (302) 290-4723</a>
+            <strong style="color: var(--primary);">Phone:</strong><br> <a href="tel:+18325547633" style="color: var(--secondary); font-weight: 600; text-decoration: none;">(832) 554-7633</a>
         </div>
         <div style="margin-bottom: 2rem; color: #444; line-height: 1.4;">
             <strong style="color: var(--primary);">Address:</strong><br> TX, USA
         </div>
 
         <button class="submit-btn" onclick="toggleContactModal(false)">Close</button>
+    </div>
+</div>
+
+<!-- Unified Notification & Confirmation Modal -->
+<div class="modal-overlay" id="msgModal">
+    <div class="login-modal" style="text-align: center; max-width: 400px;">
+        <h2 class="login-title" id="msgModalTitle">Notification</h2>
+        <p class="login-desc" id="msgModalDesc">Message goes here.</p>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;" id="msgModalActions">
+            <!-- Dynamic Buttons Go Here -->
+        </div>
     </div>
 </div>
 
@@ -318,7 +328,6 @@
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;">
                 <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem; line-height: 1;" id="navUserName">User</span>
                 <div style="display: flex; gap: 0.8rem;">
-                    <!-- Fixed Edit/Logout Action Buttons -->
                     <button onclick="window.openProfileEdit()" style="background: none; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Edit Profile</button>
                     <button onclick="window.handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Logout</button>
                 </div>
@@ -486,7 +495,7 @@
     let currentUser = null; 
     let currentUserProfile = null; 
     let unsubscribeLog = null;
-    let unsubscribeProjects = null;
+    let unsubscribeProjects = null; 
     let loadedProjects = {};
     let currentOpenProject = null;
     let userRegisteredProjectIds = new Set();
@@ -497,9 +506,37 @@
     window.toggleProfileModal = (show) => { const m = document.getElementById('profileModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     window.toggleContactModal = (show) => { const m = document.getElementById('contactModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     
-    // Fix: More resilient Edit Profile logic
+    // Universal Custom Messaging (replaces browser alert() and confirm())
+    window.showCustomMsg = (title, description, isConfirm = false) => {
+        return new Promise((resolve) => {
+            document.getElementById('msgModalTitle').innerText = title;
+            document.getElementById('msgModalDesc').innerText = description;
+            const modal = document.getElementById('msgModal');
+            const actions = document.getElementById('msgModalActions');
+            modal.classList.add('open');
+            
+            const cleanup = () => {
+                modal.classList.remove('open');
+            };
+
+            if (isConfirm) {
+                actions.innerHTML = `
+                    <button class="submit-btn" id="msgBtnYes" style="margin-top: 0; flex: 1; background: var(--secondary);">Yes</button>
+                    <button class="submit-btn" id="msgBtnNo" style="margin-top: 0; flex: 1; background: #6B7280;">No</button>
+                `;
+                document.getElementById('msgBtnYes').onclick = () => { cleanup(); resolve(true); };
+                document.getElementById('msgBtnNo').onclick = () => { cleanup(); resolve(false); };
+            } else {
+                actions.innerHTML = `
+                    <button class="submit-btn" id="msgBtnOk" style="margin-top: 0; width: 100%; background: var(--primary);">OK</button>
+                `;
+                document.getElementById('msgBtnOk').onclick = () => { cleanup(); resolve(true); };
+            }
+        });
+    };
+
     window.openProfileEdit = () => {
-        const profile = currentUserProfile || {}; // Fallback in case memory fails
+        const profile = currentUserProfile || {}; 
         document.getElementById('profileModalTitle').innerText = "Edit Your Profile ✏️";
         document.getElementById('profileModalDesc').innerText = "Update your details below.";
         document.getElementById('profileSubmitBtn').innerText = "Save Changes";
@@ -627,7 +664,7 @@
     initAuth();
 
     const loadProjects = () => {
-        if (unsubscribeProjects) unsubscribeProjects(); // Clean up existing listener if reloading
+        if (unsubscribeProjects) unsubscribeProjects(); 
         
         unsubscribeProjects = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
             const grid = document.getElementById('dynamicProjectsGrid');
@@ -666,7 +703,6 @@
         });
     }
 
-    // Call loadProjects immediately! Don't wait for auth.
     loadProjects();
 
     onAuthStateChanged(auth, async (user) => {
@@ -731,7 +767,6 @@
             const data = { name, age, phone, school, email: currentUser.email };
             await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid), data);
             
-            // Sync updated profile to existing registrations
             const regsRef = collection(db, 'artifacts', appId, 'public', 'data', 'registrations');
             const q = query(regsRef, where("userId", "==", currentUser.uid));
             const querySnapshot = await getDocs(q);
@@ -749,7 +784,7 @@
             updateUIForLoggedIn(currentUser, data);
         } catch (err) { 
             console.error(err);
-            alert("Could not save profile."); 
+            await window.showCustomMsg("Error", "Could not save profile."); 
         } finally { 
             btn.disabled = false; 
             btn.innerText = originalText; 
@@ -787,11 +822,10 @@
             console.log("Logged in as:", result.user.displayName);
         } catch (error) {
             console.error("Login failed:", error);
-            alert("Sign-in failed. Please try again.");
+            await window.showCustomMsg("Login Failed", "Sign-in failed. Please try again.");
         }
     };
     
-    // Fix: More resilient Logout logic
     window.handleLogout = async () => {
         if (unsubscribeLog) {
             unsubscribeLog();
@@ -801,7 +835,6 @@
         try {
             await signOut(auth);
             currentUserProfile = null;
-            // Restore anonymous session so projects don't break
             await signInAnonymously(auth); 
         } catch (error) {
             console.error("Logout error:", error);
@@ -834,7 +867,10 @@
 
             let html = '<ul class="registration-list">';
             userDocs.forEach((d) => {
-                const prog = d.progress || 0; const isRead = d.projectType === 'reading'; const isDone = prog >= 100;
+                const prog = d.progress || 0; 
+                const isRead = d.projectType === 'reading'; 
+                const isSimple = d.projectType === 'simple';
+                const isDone = prog >= 100;
                 let action = '';
                 
                 if (isRead) {
@@ -855,13 +891,22 @@
                         `;
                     }
                     action = `<div class="book-log-container">${list}${form}</div>`;
+                } else if (isSimple) {
+                    action = `<div class="action-row" style="background:#F3F4F6; padding:1rem; border-radius:8px;"><span style="font-size:0.95rem; font-weight:600; color:#4B5563;">Status: ${isDone ? 'Completed 🎉' : 'Registered (Awaiting Event)'}</span></div>`;
                 } else {
                     action = `<div class="action-row"><span style="font-size:0.9rem; font-weight:600; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
                 }
 
                 let completionBlock = '';
                 if (isDone) {
-                    if (d.parentName) {
+                    if (isSimple) {
+                        completionBlock = `
+                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#F0FFF4; border-radius:8px;">
+                                <div style="color:var(--primary); font-weight:bold; font-size:1.1rem;">🎉 Project Completed!</div>
+                                <div style="font-size:0.85rem; color:#166534; margin-top:0.3rem;">Verified by Admin</div>
+                            </div>
+                        `;
+                    } else if (d.parentName) {
                         completionBlock = `
                             <div style="text-align:center; margin-top:1rem; padding:1rem; background:#F0FFF4; border-radius:8px;">
                                 <div style="color:var(--primary); font-weight:bold; font-size:1.1rem;">🎉 Project Completed!</div>
@@ -881,7 +926,8 @@
                     }
                 }
 
-                html += `<li class="reg-item"><div class="reg-header"><div class="reg-item-info"><strong>${d.projectName}</strong><br><span>Status: ${isDone ? 'Completed' : 'In Progress'}</span></div>${!isDone ? `<button class="delete-btn" onclick="window.cancelRegistration('${d.id}')">Cancel</button>` : ''}</div><div class="progress-container"><div class="progress-bar" style="width: ${prog}%"></div></div>${action}${completionBlock}</li>`;
+                const safeName = (d.projectName || '').replace(/'/g, "\\'");
+                html += `<li class="reg-item"><div class="reg-header"><div class="reg-item-info"><strong>${d.projectName}</strong><br><span>Status: ${isDone ? 'Completed' : 'In Progress'}</span></div>${!isDone ? `<button class="delete-btn" onclick="window.cancelRegistration('${d.id}', '${safeName}')">Cancel Registration</button>` : ''}</div><div class="progress-container"><div class="progress-bar" style="width: ${prog}%"></div></div>${action}${completionBlock}</li>`;
             });
             logContainer.innerHTML = html + '</ul>';
         });
@@ -892,17 +938,22 @@
         
         const pId = document.getElementById('projectChoice').value; 
         if (!pId) {
-            alert("Please select a project.");
+            await window.showCustomMsg("Required", "Please select a project.");
             return;
         }
 
         if(userRegisteredProjectIds.has(pId)) {
-            alert("You are already registered for this project.");
+            await window.showCustomMsg("Already Registered", "You are already registered for this project.");
             return;
         }
 
-        const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Processing...";
         const pData = loadedProjects[pId];
+
+        // ADDED REGISTRATION CONFIRMATION 🛡️
+        const confirmed = await window.showCustomMsg("Confirm Registration", `Are you sure you want to register for "${pData.title}"?`, true);
+        if (!confirmed) return;
+
+        const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Processing...";
 
         try {
             await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), {
@@ -915,7 +966,7 @@
                 projectId: pId, 
                 projectName: pData ? pData.title : 'Unknown', 
                 projectType: pData ? pData.type : 'standard',
-                minBooks: pData ? (pData.minBooks || 3) : 3, // Save target books onto the reg form
+                minBooks: pData ? (pData.minBooks || 3) : 3,
                 progress: 0, 
                 books: [], 
                 timestamp: serverTimestamp()
@@ -923,10 +974,17 @@
             document.getElementById('displayKidName').innerText = currentUserProfile.name;
             document.getElementById('projectForm').style.display = 'none'; 
             document.getElementById('successMessage').style.display = 'block';
-        } catch (err) { alert("We couldn't save your spot."); } finally { btn.disabled = false; btn.innerText = "Sign Me Up!"; }
+        } catch (err) { await window.showCustomMsg("Error", "We couldn't save your spot."); } finally { btn.disabled = false; btn.innerText = "Sign Me Up!"; }
     });
 
-    window.cancelRegistration = async (id) => { if (currentUser && confirm("Cancel this registration?")) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id)); };
+    // ADDED DEREGISTRATION CONFIRMATION 🛡️
+    window.cancelRegistration = async (id, projectName) => { 
+        if (!currentUser) return;
+        const confirmed = await window.showCustomMsg("Cancel Registration", `Are you sure you want to cancel your registration for "${projectName}"? This action cannot be undone.`, true);
+        if (confirmed) {
+            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id)); 
+        }
+    };
     
     window.updateProgress = async (id, cur) => { 
         if (currentUser) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id), { progress: Math.min(cur + 25, 100) }); 
@@ -940,14 +998,16 @@
         const pages = parseInt(pagesStr);
 
         if (!title || !author || !pagesStr || isNaN(pages)) {
-            return alert("Please enter title, author, and number of pages.");
+            await window.showCustomMsg("Missing Details", "Please enter title, author, and number of pages.");
+            return;
         }
 
         const pData = loadedProjects[projectId];
         const minPages = (pData && pData.minPages) ? pData.minPages : 50;
 
         if (pages < minPages) {
-            return alert(`Books must be at least ${minPages} pages long to count for this project.`);
+            await window.showCustomMsg("Requirement Not Met", `Books must be at least ${minPages} pages long to count for this project.`);
+            return;
         }
 
         try {
@@ -955,7 +1015,7 @@
             const snap = await getDoc(ref);
             if (snap.exists()) {
                 const bks = snap.data().books || [];
-                const targetBooks = snap.data().minBooks || 3; // Calculate dynamically
+                const targetBooks = snap.data().minBooks || 3; 
                 
                 let newProgress = Math.min(Math.round(((bks.length + 1) / targetBooks) * 100), 100);
                 await updateDoc(ref, { 
@@ -963,18 +1023,21 @@
                     progress: newProgress 
                 });
             }
-        } catch (err) { alert("Could not add book."); }
+        } catch (err) { await window.showCustomMsg("Error", "Could not add book."); }
     };
 
     window.signCompletion = async (docId) => {
         if (!currentUser) return;
         const parentName = document.getElementById(`parent-${docId}`).value.trim();
-        if (!parentName) return alert("Please enter the Parent/Guardian Name to sign off.");
+        if (!parentName) {
+            await window.showCustomMsg("Required", "Please enter the Parent/Guardian Name to sign off.");
+            return;
+        }
         try {
             await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId), { 
                 parentName: parentName 
             });
-        } catch (err) { alert("Could not save signature."); }
+        } catch (err) { await window.showCustomMsg("Error", "Could not save signature."); }
     };
 
     window.resetForm = () => { 

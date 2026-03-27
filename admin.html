@@ -195,6 +195,7 @@
                                 <select id="pType" class="pm-input">
                                     <option value="standard">Standard Progress (0-100%)</option>
                                     <option value="reading">Reading Log (Book Tracking)</option>
+                                    <option value="simple">Simple Signup (No Tracking)</option>
                                 </select>
                             </div>
                             <div class="pm-form-group">
@@ -418,6 +419,12 @@
                         });
                         detailsHtml += `</ul>`;
                     }
+                } else if (d.projectType === 'simple') {
+                    if (isComplete) {
+                        detailsHtml += `<div style="color: #166534; font-weight: bold;">Completed ✓</div>`;
+                    } else {
+                        detailsHtml += `<button onclick="window.markComplete('${d.id}')" style="background:var(--primary); color:white; border:none; padding:0.4rem 0.8rem; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight: 600;">Mark Completed</button>`;
+                    }
                 } else {
                     detailsHtml += `<div style="color: #666;">-</div>`;
                 }
@@ -462,7 +469,12 @@
                     existingProjectTitles.add(p.title.trim().toLowerCase());
                     adminLoadedProjects[docSnap.id] = { id: docSnap.id, ...p };
                     
-                    const pTypeStr = p.type === 'reading' ? `📖 Book Log (Target: ${p.minBooks || 3} books, Min ${p.minPages || 50} pgs)` : '📊 Standard Progress';
+                    let pTypeStr = '📊 Standard Progress';
+                    if (p.type === 'reading') {
+                        pTypeStr = `📖 Book Log (Target: ${p.minBooks || 3} books, Min ${p.minPages || 50} pgs)`;
+                    } else if (p.type === 'simple') {
+                        pTypeStr = `✅ Simple Signup`;
+                    }
                     
                     container.innerHTML += `
                         <div class="admin-project-card">
@@ -609,6 +621,17 @@
                     } 
                 }
             }
+
+            // Global function to mark a simple project as completed from the Admin panel
+            window.markComplete = async (docId) => {
+                if(confirm('Mark this participant as having completed the project?')) {
+                    try {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId), { progress: 100 });
+                    } catch (err) {
+                        alert('Failed to mark complete. Please check permissions.');
+                    }
+                }
+            };
         }
     </script>
 </body>
