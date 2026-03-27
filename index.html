@@ -654,6 +654,9 @@
 
     const initAuth = async () => {
         try {
+            await auth.authStateReady(); // Wait for Firebase to check browser memory
+            if (auth.currentUser) return; // If session exists, do not overwrite it
+            
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
             } else {
