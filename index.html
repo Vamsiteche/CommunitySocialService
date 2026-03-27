@@ -498,7 +498,7 @@
     let unsubscribeProjects = null; 
     let loadedProjects = {};
     let currentOpenProject = null;
-    let userRegisteredProjectIds = new Set();
+    let userRegisteredProjectIds = new Map();
     let projectsLoaded = false;
 
     // View Management
@@ -619,6 +619,12 @@
         const ctaBtn = document.getElementById('dtCtaBtn');
         if(!currentOpenProject) return;
 
+        // Reset inline styles
+        ctaBtn.style.background = "";
+        ctaBtn.style.color = "";
+        ctaBtn.style.opacity = "";
+        ctaBtn.style.cursor = "";
+
         if (currentOpenProject.status === 'upcoming') {
             ctaBtn.innerText = "Opening Soon";
             ctaBtn.style.opacity = "0.6";
@@ -629,14 +635,16 @@
 
         if (currentUser && !currentUser.isAnonymous) {
             if (userRegisteredProjectIds.has(currentOpenProject.id)) {
-                ctaBtn.innerText = "Already Registered ✓";
-                ctaBtn.style.opacity = "0.6";
-                ctaBtn.style.cursor = "default";
-                ctaBtn.onclick = null;
+                ctaBtn.innerText = "Cancel Registration";
+                ctaBtn.style.background = "#FEE2E2";
+                ctaBtn.style.color = "#EF4444";
+                ctaBtn.onclick = async () => {
+                    const regId = userRegisteredProjectIds.get(currentOpenProject.id);
+                    const safeName = (currentOpenProject.title || '').replace(/'/g, "\\'");
+                    await window.cancelRegistration(regId, safeName);
+                };
             } else {
                 ctaBtn.innerText = "Register Now";
-                ctaBtn.style.opacity = "1";
-                ctaBtn.style.cursor = "pointer";
                 ctaBtn.onclick = () => {
                     closeProjectDetail();
                     document.getElementById('projectChoice').value = currentOpenProject.id;
@@ -645,8 +653,6 @@
                 };
             }
         } else {
-            ctaBtn.style.opacity = "1";
-            ctaBtn.style.cursor = "pointer";
             ctaBtn.innerText = "Login to Register";
             ctaBtn.onclick = () => toggleModal(true);
         }
@@ -860,7 +866,7 @@
             snapshot.forEach(doc => { 
                 const data = doc.data();
                 userDocs.push({id: doc.id, ...data}); 
-                userRegisteredProjectIds.add(data.projectId); 
+                userRegisteredProjectIds.set(data.projectId, doc.id); 
             });
 
             updateProjectDropdownUI();
@@ -929,8 +935,9 @@
                     }
                 }
 
+                let progressHtml = isSimple ? '' : `<div class="progress-container"><div class="progress-bar" style="width: ${prog}%"></div></div>`;
                 const safeName = (d.projectName || '').replace(/'/g, "\\'");
-                html += `<li class="reg-item"><div class="reg-header"><div class="reg-item-info"><strong>${d.projectName}</strong><br><span>Status: ${isDone ? 'Completed' : 'In Progress'}</span></div>${!isDone ? `<button class="delete-btn" onclick="window.cancelRegistration('${d.id}', '${safeName}')">Cancel Registration</button>` : ''}</div><div class="progress-container"><div class="progress-bar" style="width: ${prog}%"></div></div>${action}${completionBlock}</li>`;
+                html += `<li class="reg-item"><div class="reg-header"><div class="reg-item-info"><strong>${d.projectName}</strong><br><span>Status: ${isDone ? 'Completed' : 'In Progress'}</span></div>${!isDone ? `<button class="delete-btn" onclick="window.cancelRegistration('${d.id}', '${safeName}')">Cancel Registration</button>` : ''}</div>${progressHtml}${action}${completionBlock}</li>`;
             });
             logContainer.innerHTML = html + '</ul>';
         });
