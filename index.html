@@ -120,8 +120,14 @@
         }
         .dropdown:hover .dropdown-content {
             display: block;
-            animation: fadeIn 0.2s ease-out;
+            animation: dropdownFadeIn 0.2s ease-out forwards;
         }
+        
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translate(-50%, 10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
         .dropdown-content a {
             color: var(--text);
             padding: 0.8rem 1.2rem;
@@ -218,8 +224,8 @@
         .hero-banner-section {
             width: 100%;
             min-height: 520px;
-            background-image: url('Gemini_Generated_Image_nryljknryljknryl.png');
-            background-size: 100% 100%; /* Forces the image to fit the exact size without cropping */
+            background-image: url('Gemini_Generated_Image_pwkksrpwkksrpwkk.png');
+            background-size: 100% 100%; 
             background-position: center top;
             background-repeat: no-repeat;
             display: flex;
@@ -243,7 +249,6 @@
         }
 
         .hero-info-pill {
-            /* Fades to transparent at 0% and 100%, solid light green in the middle */
             background: linear-gradient(90deg, rgba(235, 245, 228, 0) 0%, rgba(235, 245, 228, 0.95) 10%, rgba(235, 245, 228, 0.95) 90%, rgba(235, 245, 228, 0) 100%);
             padding: 1.5rem 2.5rem;
             display: flex;
@@ -255,25 +260,22 @@
             box-sizing: border-box;
         }
 
-        /* Top Box Styling */
         .hero-info-pill.top {
-            border-radius: 40px 40px 0 0; /* Rounded top, sharp bottom */
+            border-radius: 40px 40px 0 0; 
         }
 
-        /* The 80% Divider Line */
         .hero-info-pill.top::after {
             content: '';
             position: absolute;
             bottom: 0;
-            left: 10%; /* Centers the 80% width line */
+            left: 10%; 
             width: 80%;
             height: 1.5px;
-            background: rgba(116, 167, 94, 0.3); /* Subtle green line */
+            background: rgba(116, 167, 94, 0.3); 
         }
 
-        /* Bottom Box Styling */
         .hero-info-pill.bottom {
-            border-radius: 0 0 40px 40px; /* Sharp top, rounded bottom */
+            border-radius: 0 0 40px 40px; 
         }
 
         .hero-info-pill .icon {
@@ -326,7 +328,19 @@
         .projects { padding: 3rem 5% 5rem; text-align: center; }
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: auto; }
         
-        .project-card { background: var(--card-soft); border: 1px solid var(--card-border); padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s ease; text-align: center; cursor: pointer; }
+        .project-card { 
+            background: var(--card-soft); 
+            border: 1px solid var(--card-border); 
+            padding: 2.5rem 2rem; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            transition: 0.3s ease; 
+            text-align: center; 
+            cursor: pointer; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
         .project-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .project-icon { font-size: 3.5rem; margin-bottom: 1rem; display: inline-block; }
         .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); margin-bottom: 0.8rem; }
@@ -641,7 +655,7 @@
 
     <div class="nav-center" id="navCenterLinks">
         <a href="#" id="nav-home" class="active" onclick="window.switchView('home')">Home</a>
-        <a href="#" id="nav-about" onclick="window.switchView('about')">About Us</a>
+        <a href="#" id="nav-journey" onclick="window.switchView('journey')">Journey</a>
         <div class="dropdown">
             <a href="#" id="nav-programs" onclick="window.scrollToPrograms()">Programs ▾</a>
             <div class="dropdown-content" id="programsDropdown">
@@ -668,9 +682,9 @@
     </div>
 </nav>
 
-<div id="aboutView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
-    <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">About Us</h1>
-    <div style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
+<div id="journeyView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
+    <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">Journey</h1>
+    <div id="journeyContentWrapper" style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
         <p style="margin-bottom: 1.5rem;"><strong>Community Equity Inc.</strong> is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection.</p>
         <p style="margin-bottom: 1.5rem;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         <p style="margin-bottom: 1.5rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -832,6 +846,7 @@
     let currentUserProfile = null; 
     let unsubscribeLog = null;
     let unsubscribeProjects = null; 
+    let unsubscribeJourney = null;
     let loadedProjects = {};
     let currentOpenProject = null;
     let userRegisteredProjectIds = new Map();
@@ -848,7 +863,7 @@
 
     window.switchView = (viewName) => {
         document.getElementById('homeView').style.display = viewName === 'home' ? 'block' : 'none';
-        document.getElementById('aboutView').style.display = viewName === 'about' ? 'block' : 'none';
+        document.getElementById('journeyView').style.display = viewName === 'journey' ? 'block' : 'none';
         document.getElementById('projectDetailView').style.display = 'none';
         window.scrollTo(0,0);
         window.updateActiveNav('nav-' + viewName);
@@ -1026,6 +1041,45 @@
         }
     }
 
+    // NEW FUNCTION: Updates the call-to-action button inside each project card
+    function updateAllProjectCardsCTA() {
+        for (const projectId in loadedProjects) {
+            const ctaContainer = document.getElementById(`cta-card-${projectId}`);
+            if (!ctaContainer) continue;
+
+            const p = loadedProjects[projectId];
+            let btnHtml = '';
+
+            if (p.status === 'upcoming') {
+                btnHtml = `<button class="green-pill-btn" style="opacity: 0.6; cursor: default; padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation();">Opening Soon</button>`;
+            } else if (currentUser && !currentUser.isAnonymous) {
+                if (!currentUserProfile || !currentUserProfile.name) {
+                    btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.openProfileEdit()">Complete Profile</button>`;
+                } else if (userRegisteredProjectIds.has(projectId)) {
+                    btnHtml = `<button class="green-pill-btn" style="background: #FEE2E2; color: #EF4444; border-color: #FEE2E2; padding: 0.6rem 1rem; font-size: 0.95rem; box-shadow: none;" onclick="event.stopPropagation(); window.openProjectDetail('${projectId}')">Already Registered ✓</button>`;
+                } else {
+                    btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.registerFromCard('${projectId}')">Register Now</button>`;
+                }
+            } else {
+                btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.toggleModal(true)">Login to Register</button>`;
+            }
+
+            ctaContainer.innerHTML = btnHtml;
+        }
+    }
+
+    // Handles the "Register Now" button click directly from a card
+    window.registerFromCard = (projectId) => {
+        if (!currentUserProfile || !currentUserProfile.name) {
+            window.showCustomMsg("Profile Required", "Please complete your profile to register for projects.");
+            window.openProfileEdit();
+            return;
+        }
+        document.getElementById('projectChoice').value = projectId;
+        document.getElementById('projectChoice').dispatchEvent(new Event('change'));
+        document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'});
+    };
+
     const initAuth = async () => {
         try {
             await auth.authStateReady(); 
@@ -1064,10 +1118,13 @@
 
                 grid.innerHTML += `
                     <div class="project-card" onclick="window.openProjectDetail('${docSnap.id}')">
-                        <div class="project-icon">${p.icon || '📌'}</div>
-                        <h3>${p.title}</h3>
-                        <p>${p.description}</p>
-                        <div class="badge ${p.status === 'upcoming' ? 'upcoming' : ''}">${p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open')}</div>
+                        <div>
+                            <div class="project-icon">${p.icon || '📌'}</div>
+                            <h3>${p.title}</h3>
+                            <p>${p.description}</p>
+                            <div class="badge ${p.status === 'upcoming' ? 'upcoming' : ''}">${p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open')}</div>
+                        </div>
+                        <div class="project-card-cta" id="cta-card-${docSnap.id}" style="margin-top: 1.5rem; width: 100%;"></div>
                     </div>
                 `;
 
@@ -1081,10 +1138,24 @@
             
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
+            updateAllProjectCardsCTA();
         }, (error) => { console.error("Error fetching projects:", error); });
+    }
+    
+    const loadJourneyContent = () => {
+        if (unsubscribeJourney) unsubscribeJourney();
+        unsubscribeJourney = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'journey'), (docSnap) => {
+            const container = document.getElementById('journeyContentWrapper');
+            if (docSnap.exists() && docSnap.data().content) {
+                container.innerHTML = docSnap.data().content;
+            }
+        }, (error) => {
+            console.error("Error fetching journey content:", error);
+        });
     }
 
     loadProjects();
+    loadJourneyContent();
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
@@ -1094,6 +1165,7 @@
             updateProjectDropdownUI();
             updateUIForLoggedOut();
             if(currentOpenProject) updateDetailCTA();
+            updateAllProjectCardsCTA();
             return; 
         }
 
@@ -1109,6 +1181,7 @@
         }
         
         if(currentOpenProject) updateDetailCTA();
+        updateAllProjectCardsCTA();
     });
 
     async function checkUserProfile(user) {
@@ -1165,6 +1238,8 @@
             currentUserProfile = data; 
             window.toggleProfileModal(false); 
             updateUIForLoggedIn(currentUser, data);
+            if(currentOpenProject) updateDetailCTA();
+            updateAllProjectCardsCTA();
         } catch (err) { 
             console.error(err);
             await window.showCustomMsg("Error", "Could not save profile."); 
@@ -1238,6 +1313,7 @@
 
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
+            updateAllProjectCardsCTA();
 
             if (userDocs.length === 0) { logContainer.innerHTML = '<div class="empty-state">You haven\'t joined any projects yet. Pick one above to get started!</div>'; return; }
 

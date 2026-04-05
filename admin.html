@@ -8,6 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
     <style>
         :root {
             --primary: #1B4332;
@@ -53,6 +57,11 @@
         .status-pill { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
         .status-complete { background: #DCFCE7; color: #166534; }
         .status-active { background: #DBEAFE; color: #1E40AF; }
+
+        /* Quill Rich Text Editor Styles */
+        .quill-editor { background: white; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; min-height: 120px; font-family: inherit; font-size: 0.95rem; }
+        .ql-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; background: #F9FAFB; border-color: #E5E7EB !important; }
+        .ql-container { border-color: #E5E7EB !important; }
 
         /* Advanced Form */
         .pm-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: start;}
@@ -186,7 +195,7 @@
                         </div>
                         <div class="pm-form-group">
                             <label>Long Description (For Banner)</label>
-                            <textarea id="pBannerDesc" class="pm-textarea" placeholder="Read books this summer and earn..."></textarea>
+                            <div id="pBannerDesc" class="quill-editor"></div>
                         </div>
 
                         <div class="pm-form-row">
@@ -236,20 +245,20 @@
 
                         <div class="pm-form-group">
                             <label>Who Can Participate</label>
-                            <span class="pm-help">Enter each requirement on a new line.</span>
-                            <textarea id="pParticipants" class="pm-textarea" placeholder="Elementary school students&#10;Grades 2 through 5"></textarea>
+                            <span class="pm-help">Format your text as needed.</span>
+                            <div id="pParticipants" class="quill-editor"></div>
                         </div>
 
                         <div class="pm-form-group">
                             <label>Challenge Rules</label>
-                            <span class="pm-help">Enter each rule on a new line.</span>
-                            <textarea id="pRules" class="pm-textarea" placeholder="Read 10 books during the summer&#10;Books must be age-appropriate"></textarea>
+                            <span class="pm-help">Format your text as needed.</span>
+                            <div id="pRules" class="quill-editor"></div>
                         </div>
 
                         <div class="pm-form-group">
-                            <label>Verification Options (Numbered)</label>
-                            <span class="pm-help">Enter each option on a new line.</span>
-                            <textarea id="pVerification" class="pm-textarea" placeholder="Reading log signed by parent&#10;Written summary"></textarea>
+                            <label>Verification Options</label>
+                            <span class="pm-help">Format your text as needed (e.g. numbered list).</span>
+                            <div id="pVerification" class="quill-editor"></div>
                         </div>
 
                         <h4 style="margin: 2rem 0 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">3. Rewards Section</h4>
@@ -262,9 +271,9 @@
                             <input type="text" id="pRewardDesc" class="pm-input" placeholder="e.g. Valid on specific days & times">
                         </div>
                         <div class="pm-form-group">
-                            <label>Optional Add-ons (Grid)</label>
-                            <span class="pm-help">Enter each add-on on a new line (include emojis!).</span>
-                            <textarea id="pAddons" class="pm-textarea" placeholder="🏅 Certificate of Completion&#10;📱 Social Media Shout-Out"></textarea>
+                            <label>Optional Add-ons</label>
+                            <span class="pm-help">Format your text as needed (include emojis!).</span>
+                            <div id="pAddons" class="quill-editor"></div>
                         </div>
 
                         <div style="display: flex; gap: 1rem; margin-top: 1rem;">
@@ -317,6 +326,25 @@
         // Add variables to store our active listeners
         let unsubscribeRegistrations = null;
         let unsubscribeProjects = null;
+
+        // Initialize Quill Editors
+        const quillOptions = {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        };
+        const qBanner = new Quill('#pBannerDesc', quillOptions);
+        const qParticipants = new Quill('#pParticipants', quillOptions);
+        const qRules = new Quill('#pRules', quillOptions);
+        const qVerification = new Quill('#pVerification', quillOptions);
+        const qAddons = new Quill('#pAddons', quillOptions);
 
         document.getElementById('pType').addEventListener('change', function(e) {
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
@@ -511,7 +539,8 @@
                 document.getElementById('pIcon').value = p.icon || '';
                 document.getElementById('pBadge').value = p.badge || '';
                 document.getElementById('pDesc').value = p.description || '';
-                document.getElementById('pBannerDesc').value = p.bannerDesc || '';
+                
+                qBanner.root.innerHTML = p.bannerDesc || '';
                 
                 document.getElementById('pType').value = p.type || 'standard';
                 document.getElementById('pStatus').value = p.status || 'open';
@@ -521,13 +550,15 @@
                 
                 document.getElementById('pDuration').value = p.duration || '';
                 document.getElementById('pLocation').value = p.location || '';
-                document.getElementById('pParticipants').value = p.participants || '';
-                document.getElementById('pRules').value = p.rules || '';
-                document.getElementById('pVerification').value = p.verification || '';
+                
+                qParticipants.root.innerHTML = p.participants || '';
+                qRules.root.innerHTML = p.rules || '';
+                qVerification.root.innerHTML = p.verification || '';
                 
                 document.getElementById('pRewardTitle').value = p.rewardTitle || '';
                 document.getElementById('pRewardDesc').value = p.rewardDesc || '';
-                document.getElementById('pAddons').value = p.addons || '';
+                
+                qAddons.root.innerHTML = p.addons || '';
 
                 // Handle conditional visibility
                 document.getElementById('readingSettingsWrapper').style.display = (p.type === 'reading') ? 'flex' : 'none';
@@ -544,6 +575,13 @@
                 document.getElementById('submitProjectBtn').innerText = "Publish Project Page";
                 document.getElementById('cancelEditBtn').style.display = "none";
                 document.getElementById('readingSettingsWrapper').style.display = 'none';
+
+                // Clear Quill Editors
+                qBanner.root.innerHTML = '';
+                qParticipants.root.innerHTML = '';
+                qRules.root.innerHTML = '';
+                qVerification.root.innerHTML = '';
+                qAddons.root.innerHTML = '';
             };
 
             // FORM SUBMISSION (Handles both Add and Edit)
@@ -570,7 +608,7 @@
                     title: newTitle,
                     badge: document.getElementById('pBadge').value,
                     description: document.getElementById('pDesc').value,
-                    bannerDesc: document.getElementById('pBannerDesc').value,
+                    bannerDesc: qBanner.root.innerHTML === '<p><br></p>' ? '' : qBanner.root.innerHTML,
                     icon: document.getElementById('pIcon').value,
                     type: document.getElementById('pType').value,
                     status: document.getElementById('pStatus').value,
@@ -578,12 +616,12 @@
                     minBooks: parseInt(document.getElementById('pMinBooks').value) || 3,
                     duration: document.getElementById('pDuration').value,
                     location: document.getElementById('pLocation').value,
-                    participants: document.getElementById('pParticipants').value,
-                    rules: document.getElementById('pRules').value,
-                    verification: document.getElementById('pVerification').value,
+                    participants: qParticipants.root.innerHTML === '<p><br></p>' ? '' : qParticipants.root.innerHTML,
+                    rules: qRules.root.innerHTML === '<p><br></p>' ? '' : qRules.root.innerHTML,
+                    verification: qVerification.root.innerHTML === '<p><br></p>' ? '' : qVerification.root.innerHTML,
                     rewardTitle: document.getElementById('pRewardTitle').value,
                     rewardDesc: document.getElementById('pRewardDesc').value,
-                    addons: document.getElementById('pAddons').value
+                    addons: qAddons.root.innerHTML === '<p><br></p>' ? '' : qAddons.root.innerHTML
                 };
 
                 try {
@@ -598,6 +636,11 @@
                         projectData.timestamp = serverTimestamp();
                         await addDoc(projectsRef, projectData);
                         e.target.reset();
+                        qBanner.root.innerHTML = '';
+                        qParticipants.root.innerHTML = '';
+                        qRules.root.innerHTML = '';
+                        qVerification.root.innerHTML = '';
+                        qAddons.root.innerHTML = '';
                         document.getElementById('readingSettingsWrapper').style.display = 'none';
                     }
                 } catch (err) { 
