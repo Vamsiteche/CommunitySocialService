@@ -54,15 +54,28 @@
 
         .logo-container {
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+            gap: 0.8rem;
             text-decoration: none;
         }
 
-        .logo-top {
+        .logo-img-wrapper {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+        }
+
+        .logo-img {
+            height: 42px; /* Matches combined height of title + subtitle */
+            width: auto;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .logo-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
         }
         
         .logo-text {
@@ -70,15 +83,16 @@
             font-weight: 700;
             font-size: 1.4rem;
             color: var(--text);
+            line-height: 1.1;
         }
 
         .logo-subtitle {
             font-size: 0.75rem;
             color: var(--secondary);
-            margin-top: -0.2rem;
-            margin-left: 2.2rem;
             font-weight: 600;
             letter-spacing: 0.5px;
+            line-height: 1.1;
+            margin-top: 0.15rem;
         }
 
         /* Centered Menu Links & Active State */
@@ -643,11 +657,13 @@
 <nav>
     <div class="nav-left">
         <a href="#" class="logo-container" onclick="window.switchView('home')">
-            <div class="logo-top">
-                <img src="Gemini_Generated_Image_13jn9m13jn9m13jn.png" alt="Logo" style="height: 28px; width: 28px; border-radius: 6px; object-fit: cover;">
-                <span class="logo-text">Community Equity Inc.</span>
+            <div class="logo-img-wrapper">
+                <img src="Gemini_Generated_Image_13jn9m13jn9m13jn.png" alt="Logo" class="logo-img">
             </div>
-            <span class="logo-subtitle">Serve Inc. Community</span>
+            <div class="logo-text-wrapper">
+                <span class="logo-text">Community Equity Inc.</span>
+                <span class="logo-subtitle">Serve Inc. Community</span>
+            </div>
         </a>
     </div>
 
