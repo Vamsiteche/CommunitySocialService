@@ -125,7 +125,8 @@
 
         <div class="admin-nav">
             <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">Overview</button>
-            <button class="tab-btn" onclick="switchTab('projects')" id="tab-projects">Manage Content & Projects</button>
+            <button class="tab-btn" onclick="switchTab('projects')" id="tab-projects">Manage Projects</button>
+            <button class="tab-btn" onclick="switchTab('pages')" id="tab-pages">Site Pages</button>
         </div>
 
         <!-- OVERVIEW TAB -->
@@ -292,6 +293,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- SITE PAGES TAB -->
+        <div id="view-pages" style="display: none;">
+            <div class="add-project-card" style="max-width: 800px; margin: auto;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Edit Journey Page</h3>
+                <div class="pm-form-group">
+                    <label>Journey Page Content</label>
+                    <span class="pm-help">This content will be displayed on the "Journey" page in the user application. Use the editor below to format text, add headings, and create lists.</span>
+                    <div id="journeyEditor" class="quill-editor" style="min-height: 300px;"></div>
+                </div>
+                <button class="pm-btn" id="saveJourneyBtn" style="margin-top: 1.5rem; width: 100%;">Save Journey Content</button>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase -->
@@ -299,10 +313,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // Added updateDoc import
-        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Added setDoc import
+        import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyBHI2EMeNAtSfd0Y5ZXgpmN67BM4fl5T6c",
             authDomain: "community-social-services.firebaseapp.com",
             projectId: "community-social-services",
@@ -345,6 +359,7 @@
         const qRules = new Quill('#pRules', quillOptions);
         const qVerification = new Quill('#pVerification', quillOptions);
         const qAddons = new Quill('#pAddons', quillOptions);
+        const qJourney = new Quill('#journeyEditor', quillOptions);
 
         document.getElementById('pType').addEventListener('change', function(e) {
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
@@ -355,6 +370,7 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
             document.getElementById('view-overview').style.display = tabName === 'overview' ? 'block' : 'none';
             document.getElementById('view-projects').style.display = tabName === 'projects' ? 'block' : 'none';
+            document.getElementById('view-pages').style.display = tabName === 'pages' ? 'block' : 'none';
         }
 
         const AUTHORIZED_ADMIN_EMAIL = "communityequityinc@gmail.com";
@@ -372,6 +388,7 @@
                 document.getElementById('adminName').innerText = user.email;
                 setupDashboard();
                 setupProjectManager();
+                setupPagesManager();
             } else {
                 document.getElementById('loginOverlay').style.display = 'flex';
                 document.getElementById('dashboardContent').style.display = 'none';
@@ -675,6 +692,38 @@
                     }
                 }
             };
+        }
+        
+        function setupPagesManager() {
+            const journeyDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'journey');
+            
+            // Load existing content on startup
+            getDoc(journeyDocRef).then((docSnap) => {
+                if (docSnap.exists() && docSnap.data().content) {
+                    qJourney.root.innerHTML = docSnap.data().content;
+                }
+            }).catch(err => console.error("Error loading journey content:", err));
+
+            // Handle Saving Journey Content
+            document.getElementById('saveJourneyBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('saveJourneyBtn');
+                const origText = btn.innerText;
+                btn.disabled = true;
+                btn.innerText = "Saving...";
+
+                try {
+                    const content = qJourney.root.innerHTML === '<p><br></p>' ? '' : qJourney.root.innerHTML;
+                    // Use setDoc with { merge: true } so we can create it if it doesn't exist
+                    await setDoc(journeyDocRef, { content: content, timestamp: serverTimestamp() }, { merge: true });
+                    alert("Journey page content updated successfully!");
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to save page content. Check permissions.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = origText;
+                }
+            });
         }
     </script>
 </body>
