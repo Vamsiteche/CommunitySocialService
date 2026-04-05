@@ -84,7 +84,7 @@
         }
 
         /* Centered Menu Links & Active State */
-        .nav-center a { 
+        .nav-center > a, .nav-center .dropdown > a { 
             text-decoration: none; 
             color: var(--text); 
             font-weight: 600; 
@@ -94,9 +94,49 @@
             padding-bottom: 0.3rem; 
             border-bottom: 2px solid transparent;
         }
-        .nav-center a:hover { color: var(--secondary); }
-        .nav-center a.active { color: var(--secondary); border-bottom: 2px solid var(--secondary); }
+        .nav-center > a:hover, .nav-center .dropdown > a:hover { color: var(--secondary); }
+        .nav-center > a.active, .nav-center .dropdown > a.active { color: var(--secondary); border-bottom: 2px solid var(--secondary); }
         
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #FFFFFF;
+            min-width: 220px;
+            box-shadow: 0px 8px 24px rgba(0,0,0,0.08);
+            z-index: 101;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        .dropdown-content a {
+            color: var(--text);
+            padding: 0.8rem 1.2rem;
+            text-decoration: none;
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+            text-align: left;
+        }
+        .dropdown-content a:hover {
+            background-color: var(--card-soft);
+            color: var(--secondary-dark);
+        }
+
         .user-profile { display: none; align-items: center; gap: 0.8rem; }
         .user-avatar { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
@@ -148,13 +188,39 @@
 
         .hero-btn, .cta-btn { width: auto; }
 
+        /* Nav Login Button */
+        .nav-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 1.8rem;
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white !important;
+            border: 2px solid #FFFFFF;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(86, 132, 62, 0.2), inset 0 2px 4px rgba(255,255,255,0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-login-btn:hover {
+            background: linear-gradient(180deg, #64964F 0%, #487232 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(86, 132, 62, 0.3), inset 0 2px 4px rgba(255,255,255,0.3);
+        }
+
         /* ================= HERO BANNER ================= */
         .hero-banner-section {
             width: 100%;
             min-height: 520px;
-            background-image: url('Gemini_Generated_Image_pwkksrpwkksrpwkk.jpg');
-            background-size: cover;
-            background-position: center bottom;
+            background-image: url('Gemini_Generated_Image_nryljknryljknryl.png');
+            background-size: 100% 100%; /* Forces the image to fit the exact size without cropping */
+            background-position: center top;
             background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
@@ -163,19 +229,51 @@
             position: relative;
         }
 
+        .hero-info-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 680px;
+            width: 90%;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-info-wrapper:hover {
+            transform: translateY(-3px);
+        }
+
         .hero-info-pill {
-            background: rgba(246, 251, 244, 0.88); /* Soft greenish translucent white */
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 50px;
-            padding: 1.2rem 2.5rem;
-            margin-bottom: 1.2rem;
+            /* Fades to transparent at 0% and 100%, solid light green in the middle */
+            background: linear-gradient(90deg, rgba(235, 245, 228, 0) 0%, rgba(235, 245, 228, 0.95) 10%, rgba(235, 245, 228, 0.95) 90%, rgba(235, 245, 228, 0) 100%);
+            padding: 1.5rem 2.5rem;
             display: flex;
             align-items: center;
             gap: 1.2rem;
-            max-width: 720px;
-            width: 90%;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            backdrop-filter: blur(8px);
+            width: 100%;
+            position: relative;
+            backdrop-filter: blur(4px);
+            box-sizing: border-box;
+        }
+
+        /* Top Box Styling */
+        .hero-info-pill.top {
+            border-radius: 40px 40px 0 0; /* Rounded top, sharp bottom */
+        }
+
+        /* The 80% Divider Line */
+        .hero-info-pill.top::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%; /* Centers the 80% width line */
+            width: 80%;
+            height: 1.5px;
+            background: rgba(116, 167, 94, 0.3); /* Subtle green line */
+        }
+
+        /* Bottom Box Styling */
+        .hero-info-pill.bottom {
+            border-radius: 0 0 40px 40px; /* Sharp top, rounded bottom */
         }
 
         .hero-info-pill .icon {
@@ -187,27 +285,45 @@
         }
 
         .hero-info-pill .text-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
             text-align: left;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
-        .hero-info-pill .text-content span {
-            color: #4B5563;
-            font-size: 1.1rem;
+        .hero-info-pill .text-title {
+            color: var(--text);
+            font-size: 1.3rem;
             font-weight: 500;
         }
 
+        .hero-info-pill .text-title strong {
+            color: var(--secondary-dark);
+            font-weight: 700;
+        }
+
+        .hero-info-pill .text-desc {
+            color: #4B5563;
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-top: 0.2rem;
+        }
+
         @media (max-width: 768px) {
-            .hero-banner-section { min-height: 400px; padding-top: 2rem; background-position: 70% bottom; }
-            .hero-info-pill { padding: 1.2rem; border-radius: 24px; flex-direction: column; text-align: center; gap: 0.5rem; }
-            .hero-info-pill .text-content { text-align: center; }
+            .hero-banner-section { min-height: 400px; padding-top: 2rem; background-position: center top; }
+            .hero-info-pill { padding: 1.2rem; flex-direction: column; text-align: center; gap: 0.5rem; }
+            .hero-info-pill.top { border-radius: 24px 24px 0 0; }
+            .hero-info-pill.bottom { border-radius: 0 0 24px 24px; }
+            .hero-info-pill .text-content { align-items: center; text-align: center; }
+            .hero-info-pill .text-title { font-size: 1.2rem; }
+            .hero-info-pill .text-desc { font-size: 1rem; }
         }
 
         .divider { width: 60px; height: 3px; background: var(--accent); margin: 0 auto 3rem; border-radius: 2px; }
 
         /* ================= PROJECTS GRID ================= */
-        .projects { background: var(--primary); padding: 5rem 5%; text-align: center; }
-        .projects h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 3rem; text-transform: uppercase; }
+        .projects { padding: 3rem 5% 5rem; text-align: center; }
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: auto; }
         
         .project-card { background: var(--card-soft); border: 1px solid var(--card-border); padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s ease; text-align: center; cursor: pointer; }
@@ -397,9 +513,6 @@
 
 <body>
 
-<!-- ================= MODALS ================= -->
-
-<!-- Login Modal -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-card-style">
         <div class="modal-card-header">
@@ -422,7 +535,6 @@
     </div>
 </div>
 
-<!-- Profile Modal -->
 <div class="modal-overlay" id="profileModal">
     <div class="modal-card-style">
         <div class="modal-card-header">
@@ -475,7 +587,6 @@
     </div>
 </div>
 
-<!-- Contact Us Modal -->
 <div class="modal-overlay" id="contactModal">
     <div class="modal-card-style" style="max-width: 350px;">
         <div class="modal-card-header">
@@ -503,7 +614,6 @@
     </div>
 </div>
 
-<!-- Unified Notification & Confirmation Modal -->
 <div class="modal-overlay" id="msgModal">
     <div class="modal-card-style" style="max-width: 400px;">
         <div class="modal-card-header">
@@ -513,15 +623,12 @@
         <div class="modal-card-body">
             <p id="msgModalDesc" style="color: var(--primary); font-weight: 600;">Message goes here.</p>
             <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;" id="msgModalActions">
-                <!-- Dynamic Buttons Go Here -->
-            </div>
+                </div>
         </div>
     </div>
 </div>
 
-<!-- ================= NAV ================= -->
 <nav>
-    <!-- Left Column: Logo -->
     <div class="nav-left">
         <a href="#" class="logo-container" onclick="window.switchView('home')">
             <div class="logo-top">
@@ -532,18 +639,21 @@
         </a>
     </div>
 
-    <!-- Center Column: Main Links -->
     <div class="nav-center" id="navCenterLinks">
         <a href="#" id="nav-home" class="active" onclick="window.switchView('home')">Home</a>
         <a href="#" id="nav-about" onclick="window.switchView('about')">About Us</a>
-        <a href="#" id="nav-programs" onclick="window.scrollToPrograms()">Programs</a>
+        <div class="dropdown">
+            <a href="#" id="nav-programs" onclick="window.scrollToPrograms()">Programs ▾</a>
+            <div class="dropdown-content" id="programsDropdown">
+                <!-- Populated dynamically via JS -->
+            </div>
+        </div>
         <a href="#" id="nav-contact" onclick="window.toggleContactModal(true)">Contact</a>
     </div>
 
-    <!-- Right Column: Login & Profile -->
     <div class="nav-right">
         <div id="loggedOutNav">
-            <a href="#" onclick="window.toggleModal(true)" style="text-decoration:none; color:var(--text); font-weight:700; transition: color 0.2s;" onmouseover="this.style.color='#74A75E'" onmouseout="this.style.color='#1B263B'">Login</a>
+            <a href="#" class="nav-login-btn" onclick="window.toggleModal(true)">Login</a>
         </div>
         <div id="loggedInNav" class="user-profile">
             <div class="user-avatar" id="userInitial">U</div>
@@ -558,7 +668,6 @@
     </div>
 </nav>
 
-<!-- ================= ABOUT US VIEW ================= -->
 <div id="aboutView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
     <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">About Us</h1>
     <div style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
@@ -569,37 +678,36 @@
     </div>
 </div>
 
-<!-- ================= MAIN HOME VIEW ================= -->
 <div id="homeView">
     
-    <!-- Hero Banner replacing old section -->
     <section class="hero-banner-section">
-        <div class="hero-info-pill">
-            <span class="icon">✅</span>
-            <div class="text-content">
-                <strong style="color: #64964F; font-size: 1.3rem;">Goal:</strong> <strong style="color: #374151; font-size: 1.3rem;">Support Reading in Elementary Level.</strong><br>
-                <span>Provide additional help in elementary Core Subjects</span>
+        
+        <div class="hero-info-wrapper">
+            <div class="hero-info-pill top">
+                <span class="icon">✅</span>
+                <div class="text-content">
+                    <div class="text-title"><strong>Goal:</strong> Support Reading in Elementary Level.</div>
+                    <div class="text-desc">Provide additional help in elementary Core Subjects</div>
+                </div>
+            </div>
+            
+            <div class="hero-info-pill bottom">
+                <span class="icon">📣</span>
+                <div class="text-content">
+                    <div class="text-title"><strong>Purpose:</strong> To improve literacy & advocate</div>
+                    <div class="text-desc">academic performance in elementary schools</div>
+                </div>
             </div>
         </div>
-        <div class="hero-info-pill">
-            <span class="icon">📣</span>
-            <div class="text-content">
-                <strong style="color: #0284C7; font-size: 1.3rem;">Purpose:</strong> <strong style="color: #374151; font-size: 1.3rem;">To improve literacy & advocate</strong><br>
-                <span>academic performance in elementary schools</span>
-            </div>
-        </div>
-        <!-- Hidden anchor point for dynamic JavaScript buttons -->
-        <div id="heroActions" style="margin-top: 1.5rem;"></div>
+        
+        <div id="heroActions" style="margin-top: 0.5rem;"></div>
     </section>
 
     <section class="projects" id="projects">
-        <h2>OUR PROJECTS</h2>
         <div class="projects-grid" id="dynamicProjectsGrid">
-            <!-- Populated by JS -->
-        </div>
+            </div>
     </section>
 
-    <!-- Secure Dashboard Area -->
     <div id="secureContent">
         <section class="register-section" id="register">
             <h2 class="section-title">Ready to get involved?</h2>
@@ -641,7 +749,6 @@
     </div>
 </div>
 
-<!-- ================= DYNAMIC PROJECT DETAIL VIEW ================= -->
 <div id="projectDetailView">
     <div class="detail-banner">
         <a class="detail-back" onclick="window.closeProjectDetail()">← Back to Home</a>
@@ -652,7 +759,6 @@
     </div>
 
     <div class="detail-content">
-        <!-- Info -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">📌</span> Program Details</div>
             <div class="info-row"><span class="info-label">Program Name</span><span class="info-value" id="dtInfoName"></span></div>
@@ -660,25 +766,21 @@
             <div class="info-row"><span class="info-label">📍 Location</span><span class="info-value" id="dtLocation">TBD</span></div>
         </div>
 
-        <!-- Participants -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">👧👦</span> Who Can Participate</div>
             <div class="rich-text-content" id="dtParticipants"></div>
         </div>
 
-        <!-- Rules -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">📖</span> Challenge Rules</div>
             <div class="rich-text-content" id="dtRules"></div>
         </div>
 
-        <!-- Verification -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">📝</span> Verification Options</div>
             <div class="rich-text-content" id="dtVerification"></div>
         </div>
 
-        <!-- Reward -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">🎁</span> Reward</div>
             <div class="reward-main">
@@ -692,7 +794,6 @@
             <div class="rich-text-content" id="dtAddons"></div>
         </div>
 
-        <!-- CTA -->
         <div class="cta-block">
             <h3>Ready to start? 🚀</h3>
             <p>Register today and kick off your adventure!</p>
@@ -705,7 +806,6 @@
     <p>© 2026 CommunityEquityInc · <a href="mailto:communityequityinc@gmail.com">communityequityinc@gmail.com</a></p>
 </footer>
 
-<!-- ================= FIREBASE LOGIC ================= -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
@@ -739,7 +839,7 @@
 
     // View Management & Navigation
     window.updateActiveNav = (activeId) => {
-        document.querySelectorAll('.nav-center a').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-center > a, .nav-center .dropdown > a').forEach(el => el.classList.remove('active'));
         if (activeId) {
             const activeEl = document.getElementById(activeId);
             if (activeEl) activeEl.classList.add('active');
@@ -875,6 +975,7 @@
         document.getElementById('homeView').style.display = 'none';
         document.getElementById('projectDetailView').style.display = 'block';
         window.scrollTo(0,0);
+        window.updateActiveNav('nav-programs');
     };
 
     window.closeProjectDetail = () => {
@@ -945,12 +1046,15 @@
         unsubscribeProjects = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'projects'), (snapshot) => {
             const grid = document.getElementById('dynamicProjectsGrid');
             const select = document.getElementById('projectChoice');
+            const dropdown = document.getElementById('programsDropdown');
             grid.innerHTML = ''; 
             select.innerHTML = '<option value="" disabled selected>Choose a project...</option>';
+            dropdown.innerHTML = '';
             loadedProjects = {};
 
             if (snapshot.empty) { 
                 grid.innerHTML = '<p style="text-align:center; width:100%; color: var(--muted); font-weight: 600;">No projects available right now. Check back later!</p>'; 
+                dropdown.innerHTML = '<a href="#" style="pointer-events: none; color: var(--muted);">No projects yet</a>';
                 return; 
             }
 
@@ -970,6 +1074,9 @@
                 const opt = document.createElement('option');
                 opt.value = docSnap.id;
                 select.appendChild(opt);
+
+                // Add to dropdown
+                dropdown.innerHTML += `<a href="#" onclick="event.preventDefault(); window.openProjectDetail('${docSnap.id}')">${p.title}</a>`;
             });
             
             updateProjectDropdownUI();
@@ -1075,7 +1182,6 @@
         document.getElementById('navUserName').innerText = profile && profile.name ? profile.name : "Member";
         document.getElementById('joiningAsDisplay').innerText = profile && profile.name ? `${profile.name} (Age ${profile.age})` : "Member (Profile Incomplete)";
 
-        // Hide Hero Button and show Dashboard when logged in
         document.getElementById('heroActions').innerHTML = '';
 
         const sc = document.getElementById('secureContent'); sc.style.display = 'block'; setTimeout(() => sc.classList.add('visible'), 50);
@@ -1090,8 +1196,7 @@
         sc.classList.remove('visible'); 
         setTimeout(() => sc.style.display = 'none', 300);
         
-        // Show Hero Buttons for Logged out users
-        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: rgba(255,255,255,0.9); color: var(--primary);">Explore Projects</button>`;
+        document.getElementById('heroActions').innerHTML = ``;
     }
     
     window.handleLogin = async () => {
