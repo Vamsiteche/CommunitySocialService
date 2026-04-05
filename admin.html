@@ -27,8 +27,6 @@
         /* Login */
         #loginOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: var(--white); padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
-        .admin-logo { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; display: block; }
-        .admin-logo span { color: var(--secondary); }
         .google-btn { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 12px; background: white; color: #444; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 2rem; }
         .google-btn:hover { background: #f9f9f9; border-color: #ddd; }
         .google-icon { width: 20px; height: 20px; }
@@ -95,7 +93,7 @@
     <!-- Login Screen -->
     <div id="loginOverlay">
         <div class="login-card">
-            <span class="admin-logo">CommunityEquity<span>Inc</span> Admin</span>
+            <img src="Gemini_Generated_Image_13jn9m13jn9m13jn.png" alt="Community Equity Inc" style="height: 80px; margin-bottom: 1rem; border-radius: 12px;">
             <p style="color: #666;">Authorized personnel only.</p>
             <button class="google-btn" onclick="handleLogin()">
                 <svg class="google-icon" viewBox="0 0 48 48">
@@ -113,9 +111,12 @@
     <!-- Dashboard Content -->
     <div id="dashboardContent">
         <header class="dashboard-header">
-            <div class="header-title">
-                <h1>Admin Portal</h1>
-                <p style="color: #666;">Manage your community projects.</p>
+            <div class="header-title" style="display: flex; align-items: center; gap: 1rem;">
+                <img src="Gemini_Generated_Image_13jn9m13jn9m13jn.png" alt="Logo" style="height: 50px; border-radius: 8px;">
+                <div>
+                    <h1>Admin Portal</h1>
+                    <p style="color: #666; margin-top: 0.2rem;">Manage your community projects.</p>
+                </div>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span id="adminName" style="font-weight: 600;">Admin</span>
