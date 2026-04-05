@@ -6,17 +6,21 @@
     <title>CommunityEquityInc</title>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #1B4332;
-            --secondary: #E76F51;
+            /* Extracted directly from the mockup aesthetic */
+            --primary: #386641; 
+            --secondary: #74A75E; 
+            --secondary-dark: #56843E;
             --accent: #E9C46A;
             --bg: #FAFAF8;
             --card-bg: #FFFFFF;
-            --text: #1A1A1A;
-            --muted: #666666;
+            --card-soft: #EEF4E5;
+            --card-border: #DCE8D1;
+            --text: #1B263B;
+            --muted: #6A8A6D;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,59 +33,192 @@
             overflow-x: hidden;
         }
 
-        /* Navigation */
+        /* ================= NAVIGATION ================= */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 5%;
-            background: var(--bg);
-            border-bottom: 1px solid #eee;
+            padding: 1.2rem 5%;
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--card-border);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary);
+        /* 3-Column Layout */
+        .nav-left { flex: 1; display: flex; justify-content: flex-start; }
+        .nav-center { flex: 2; display: flex; justify-content: center; gap: 2.5rem; align-items: center; }
+        .nav-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 1rem; }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
             text-decoration: none;
         }
 
-        .logo span { color: var(--secondary); }
+        .logo-top {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
 
-        .nav-actions { display: flex; align-items: center; gap: 1rem; }
-        .nav-btn { text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.95rem; border: 2px solid var(--primary); padding: 0.5rem 1.3rem; border-radius: 50px; transition: all 0.2s; background: transparent; cursor: pointer; }
-        .nav-btn:hover { background: var(--primary); color: white; }
+        .logo-icon { font-size: 1.6rem; }
+        
+        .logo-text {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--text);
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            margin-top: -0.2rem;
+            margin-left: 2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Centered Menu Links & Active State */
+        .nav-center a { 
+            text-decoration: none; 
+            color: var(--text); 
+            font-weight: 600; 
+            font-size: 1.05rem; 
+            transition: all 0.2s; 
+            position: relative; 
+            padding-bottom: 0.3rem; 
+            border-bottom: 2px solid transparent;
+        }
+        .nav-center a:hover { color: var(--secondary); }
+        .nav-center a.active { color: var(--secondary); border-bottom: 2px solid var(--secondary); }
+        
         .user-profile { display: none; align-items: center; gap: 0.8rem; }
         .user-avatar { width: 40px; height: 40px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* HOME VIEW STYLES */
-        .hero { text-align: center; padding: 6rem 2rem 4rem; }
-        .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 4rem); color: var(--primary); line-height: 1.15; margin-bottom: 1.2rem; }
-        .hero h1 em { font-style: normal; color: var(--secondary); }
-        .hero p { font-size: 1.1rem; color: var(--muted); font-weight: 300; max-width: 480px; margin: 0 auto 2rem; line-height: 1.7; }
-        .hero-btn { display: inline-block; background: var(--primary); color: white; padding: 0.9rem 2.2rem; border-radius: 50px; text-decoration: none; font-weight: 600; transition: background 0.2s; border: none; cursor: pointer; font-size: 1rem; }
-        .hero-btn:hover { background: #2D6A4F; }
+        @media (max-width: 850px) {
+            nav { flex-direction: column; gap: 1rem; padding: 1rem; }
+            .nav-left, .nav-center, .nav-right { justify-content: center; width: 100%; flex: unset; }
+            .nav-center { flex-wrap: wrap; gap: 1rem; }
+            .logo-container { align-items: center; }
+            .logo-subtitle { margin-left: 0; }
+        }
+
+        /* ================= 3D PILL BUTTONS ================= */
+        .submit-btn, .hero-btn, .cta-btn, .green-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--secondary-dark) 100%);
+            color: white;
+            border: 2px solid #FFFFFF;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(86, 132, 62, 0.3), inset 0 2px 4px rgba(255,255,255,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+        
+        .submit-btn:hover, .hero-btn:hover, .cta-btn:hover, .green-pill-btn:hover {
+            background: linear-gradient(180deg, #64964F 0%, #487232 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(86, 132, 62, 0.4), inset 0 2px 4px rgba(255,255,255,0.4);
+        }
+
+        .submit-btn:disabled, .green-pill-btn:disabled {
+            background: var(--card-border);
+            color: var(--muted);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            border-color: var(--card-border);
+            text-shadow: none;
+        }
+
+        .hero-btn, .cta-btn { width: auto; }
+
+        /* ================= HERO BANNER ================= */
+        .hero-banner-section {
+            width: 100%;
+            min-height: 520px;
+            background-image: url('Gemini_Generated_Image_pwkksrpwkksrpwkk.jpg');
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 4rem;
+            position: relative;
+        }
+
+        .hero-info-pill {
+            background: rgba(246, 251, 244, 0.88); /* Soft greenish translucent white */
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            padding: 1.2rem 2.5rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            max-width: 720px;
+            width: 90%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-info-pill .icon {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero-info-pill .text-content {
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .hero-info-pill .text-content span {
+            color: #4B5563;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .hero-banner-section { min-height: 400px; padding-top: 2rem; background-position: 70% bottom; }
+            .hero-info-pill { padding: 1.2rem; border-radius: 24px; flex-direction: column; text-align: center; gap: 0.5rem; }
+            .hero-info-pill .text-content { text-align: center; }
+        }
+
         .divider { width: 60px; height: 3px; background: var(--accent); margin: 0 auto 3rem; border-radius: 2px; }
-        .about { max-width: 800px; margin: 0 auto; text-align: center; padding: 0 2rem 5rem; }
-        .about h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); margin-bottom: 1rem; }
-        .about p { font-size: 1.1rem; color: var(--muted); font-weight: 300; line-height: 1.8; }
+
+        /* ================= PROJECTS GRID ================= */
         .projects { background: var(--primary); padding: 5rem 5%; text-align: center; }
         .projects h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 3rem; text-transform: uppercase; }
         .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: auto; }
         
-        .project-card { background: white; padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: 0.3s ease; text-align: center; cursor: pointer; }
-        .project-card:hover { transform: translateY(-8px); }
+        .project-card { background: var(--card-soft); border: 1px solid var(--card-border); padding: 2.5rem 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s ease; text-align: center; cursor: pointer; }
+        .project-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .project-icon { font-size: 3.5rem; margin-bottom: 1rem; display: inline-block; }
         .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); margin-bottom: 0.8rem; }
-        .project-card p { color: var(--muted); font-size: 0.95rem; font-weight: 300; line-height: 1.7; margin-bottom: 1.5rem; }
-        .badge { display: inline-block; background: #E8F5E9; color: #2D6A4F; padding: 0.4rem 1.2rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
-        .badge.upcoming { background: #FFF3CD; color: #B45309; }
+        .project-card p { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; }
+        .badge { display: inline-block; background: #FFFFFF; color: var(--secondary-dark); border: 1px solid var(--card-border); padding: 0.4rem 1.2rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
+        .badge.upcoming { background: #FFF3CD; color: #B45309; border-color: #FDE68A; }
 
-        /* PROJECT DETAIL VIEW STYLES */
+        /* ================= PROJECT DETAIL VIEW ================= */
         #projectDetailView { display: none; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -90,121 +227,164 @@
         .detail-back:hover { opacity: 1; text-decoration: underline; }
         .detail-banner-icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
         .detail-banner h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); color: white; margin-bottom: 0.8rem; }
-        .detail-banner p { color: rgba(255,255,255,0.75); font-size: 1.05rem; font-weight: 300; max-width: 560px; margin: 0 auto 1.5rem; line-height: 1.7; }
         
         .detail-content { max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
-        .detail-block { background: white; border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 15px rgba(0,0,0,0.05); }
-        .detail-block-title { display: flex; align-items: center; gap: 0.7rem; font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--primary); margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 2px solid var(--accent); }
+        .detail-block { background: var(--card-soft); border-radius: 16px; padding: 2rem 2.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
+        .detail-block-title { display: flex; align-items: center; gap: 0.7rem; font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--primary); margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 2px solid #FFFFFF; }
         
         .info-row { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.7rem; }
         .info-label { font-weight: 600; color: var(--primary); min-width: 120px; font-size: 0.95rem; }
-        .info-value { color: #555; font-weight: 300; font-size: 0.95rem; line-height: 1.6; }
+        .info-value { color: var(--text); font-weight: 400; font-size: 0.95rem; line-height: 1.6; }
 
-        ul.detail-list { list-style: none; padding: 0; }
-        ul.detail-list li { padding: 0.45rem 0; color: #555; font-weight: 300; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 0.6rem; line-height: 1.5; }
-        ul.detail-list li::before { content: '→'; color: var(--secondary); font-weight: 700; flex-shrink: 0; margin-top: 0.05rem; }
-        ul.detail-list.numbered { counter-reset: item; }
-        ul.detail-list.numbered li::before { content: counter(item); counter-increment: item; background: var(--primary); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+        /* Rich Text Content Render Styles */
+        .rich-text-content { color: var(--text); font-size: 0.95rem; line-height: 1.6; font-weight: 400; text-align: left;}
+        .rich-text-content p { margin-bottom: 0.8rem; }
+        .rich-text-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .rich-text-content ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
+        .rich-text-content li { margin-bottom: 0.4rem; line-height: 1.5; display: list-item; }
+        .rich-text-content strong { font-weight: 700; color: var(--primary); }
+        .rich-text-content em { font-style: italic; }
+        .rich-text-content a { color: var(--secondary); text-decoration: underline; font-weight: 600; }
 
-        .reward-main { background: var(--primary); border-radius: 14px; padding: 1.5rem 2rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1.2rem; }
+        .detail-banner-desc { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; text-align: center; }
+        .detail-banner-desc p { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; line-height: 1.7; margin-bottom: 0.5rem; text-align: center; }
+
+        .reward-main { background: var(--primary); border-radius: 14px; padding: 1.5rem 2rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1.2rem; border: 2px solid #FFFFFF;}
         .reward-main .reward-icon { font-size: 2.5rem; flex-shrink: 0; }
-        .reward-main h4 { font-family: 'Playfair Display', serif; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.3rem; }
-        .reward-main p { color: rgba(255,255,255,0.8); font-size: 0.9rem; font-weight: 300; }
+        .reward-main h4 { font-family: 'Playfair Display', serif; color: var(--accent); font-size: 1.1rem; margin-bottom: 0.3rem; text-align: left;}
+        .reward-main p { color: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 400; text-align: left; }
         .addons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
-        .addon-item { background: #F0FFF4; border-radius: 12px; padding: 0.9rem 1.2rem; font-size: 0.9rem; color: #2D6A4F; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+        .addon-item { background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 12px; padding: 0.9rem 1.2rem; font-size: 0.9rem; color: var(--secondary-dark); font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
 
-        .cta-block { background: var(--secondary); border-radius: 20px; padding: 2.5rem; text-align: center; margin-top: 2rem; }
-        .cta-block h3 { font-family: 'Playfair Display', serif; color: white; font-size: 1.6rem; margin-bottom: 0.6rem; }
-        .cta-block p { color: rgba(255,255,255,0.85); font-weight: 300; margin-bottom: 1.5rem; }
-        .cta-btn { display: inline-block; background: white; color: var(--secondary); padding: 0.9rem 2.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: transform 0.2s; cursor: pointer; border:none; }
-        .cta-btn:hover { transform: translateY(-2px); }
+        .cta-block { background: var(--card-soft); border: 1px solid var(--card-border); border-radius: 20px; padding: 2.5rem; text-align: center; margin-top: 2rem; }
+        .cta-block h3 { font-family: 'Playfair Display', serif; color: var(--primary); font-size: 1.6rem; margin-bottom: 0.6rem; }
+        .cta-block p { color: var(--muted); font-weight: 600; margin-bottom: 1.5rem; }
 
-        /* Secure Content Wrapper (Registration & Log) */
-        #secureContent { display: none; opacity: 0; transition: opacity 0.5s ease; background: white; }
+        /* ================= SECURE DASHBOARD ================= */
+        #secureContent { display: none; opacity: 0; transition: opacity 0.5s ease; background: var(--bg); }
         #secureContent.visible { opacity: 1; }
 
         /* Registration Form */
         .register-section { padding: 5rem 5%; }
         .section-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--primary); margin-bottom: 3rem; }
-        .form-container { background: white; border-radius: 24px; padding: 3rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.08); max-width: 800px; margin: auto; border: 1px solid #eee; }
+        .form-container { background: var(--card-soft); border-radius: 16px; padding: 3rem 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.05); max-width: 800px; margin: auto; border: 1px solid var(--card-border); }
         .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--primary); }
-        .form-control { width: 100%; padding: 1rem; border-radius: 12px; border: 2px solid #F3F4F6; font-family: inherit; font-size: 1rem; transition: 0.3s; }
-        .form-control:focus { outline: none; border-color: var(--secondary); background: #FFF9F8; }
-        .submit-btn { width: 100%; background: var(--secondary); color: white; border: none; padding: 1.2rem; font-size: 1.1rem; font-weight: 700; border-radius: 12px; cursor: pointer; transition: 0.3s; margin-top: 1rem; }
-        .submit-btn:hover { background: #D65A3C; }
-        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 700; color: var(--primary); }
+        .form-control { width: 100%; padding: 1rem; border-radius: 12px; border: 2px solid var(--card-border); font-family: inherit; font-size: 1rem; transition: 0.3s; background: #FFFFFF; color: var(--text); }
+        .form-control:focus { outline: none; border-color: var(--secondary); }
 
         /* Dynamic View Details Button */
         .view-details-btn {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            background: #FFFFFF;
+            color: var(--secondary-dark);
+            border: 2px solid var(--card-border);
             padding: 0 1.2rem;
             border-radius: 12px;
             font-weight: 700;
             font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.2s;
-            display: none; /* hidden until selection */
+            display: none; 
             align-items: center;
             justify-content: center;
             white-space: nowrap;
         }
         .view-details-btn:hover {
-            background: var(--primary);
-            color: white;
+            border-color: var(--secondary);
+            color: var(--secondary);
         }
 
         /* My Adventures / Log */
-        .adventure-log { margin-top: 4rem; background: #FAFAF8; padding: 2.5rem; border-radius: 20px; border: 1px solid #eee; }
+        .adventure-log { margin-top: 4rem; background: #FFFFFF; padding: 2.5rem; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .log-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
         .registration-list { list-style: none; }
-        .reg-item { background: white; margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 1rem; border: 1px solid #eee; }
+        .reg-item { background: var(--card-soft); margin-bottom: 1rem; padding: 1.5rem; border-radius: 12px; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--card-border); }
         .reg-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .reg-item-info strong { color: var(--primary); font-size: 1.2rem; font-family: 'Playfair Display', serif; }
-        .reg-item-info span { color: var(--muted); font-size: 0.9rem; }
+        .reg-item-info span { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
 
         /* Progress Bar Styles */
-        .progress-container { background: #E0E7FF; border-radius: 50px; height: 10px; width: 100%; overflow: hidden; margin-top: 0.5rem; }
-        .progress-bar { background: linear-gradient(90deg, #1B4332, #2D6A4F); height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
+        .progress-container { background: #FFFFFF; border: 1px solid var(--card-border); border-radius: 50px; height: 12px; width: 100%; overflow: hidden; margin-top: 0.5rem; }
+        .progress-bar { background: linear-gradient(90deg, var(--secondary-dark), var(--secondary)); height: 100%; width: 0%; transition: width 0.5s ease-in-out; border-radius: 50px;}
+        
         .action-row { display: flex; justify-content: space-between; align-items: center; }
-        .progress-btn { background: #E8F5E9; color: #1B4332; border: 1px solid #1B4332; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
-        .progress-btn:hover { background: #1B4332; color: white; }
+        
+        /* Secondary small pill buttons */
+        .progress-btn, .add-book-btn { 
+            background: linear-gradient(180deg, var(--secondary) 0%, var(--secondary-dark) 100%); 
+            color: white; border: 1px solid #FFFFFF; padding: 0.5rem 1rem; border-radius: 50px; cursor: pointer; font-size: 0.85rem; font-weight: 700; transition: 0.2s; box-shadow: 0 2px 6px rgba(86, 132, 62, 0.3); text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
+        .progress-btn:hover, .add-book-btn:hover { background: linear-gradient(180deg, #64964F 0%, #487232 100%); transform: translateY(-1px); }
+
+        .delete-btn { 
+            background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%); color: white; border: 1px solid #FFFFFF; padding: 0.4rem 1rem; border-radius: 50px; cursor: pointer; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); text-shadow: 0 1px 1px rgba(0,0,0,0.2); transition: all 0.2s;
+        }
+        .delete-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4); }
 
         /* Book Log Styles */
-        .book-log-container { background: #FAFAF8; padding: 1.5rem; border-radius: 12px; margin-top: 0.5rem; border: 1px solid #E5E7EB; }
+        .book-log-container { background: #FFFFFF; padding: 1.5rem; border-radius: 12px; margin-top: 0.5rem; border: 1px solid var(--card-border); }
         .book-list { list-style: none; margin-bottom: 1rem; }
-        .book-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: #4B5563; padding: 0.5rem 0; border-bottom: 1px dashed #E5E7EB; }
+        .book-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: var(--text); padding: 0.5rem 0; border-bottom: 1px dashed var(--card-border); font-weight: 500; }
         .book-item:last-child { border-bottom: none; }
         .book-icon { color: var(--secondary); font-size: 1.2rem; }
         .book-form { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-        .book-input { flex: 1; min-width: 100px; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.9rem; }
-        .book-input-pages { width: 80px; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.9rem; }
-        .add-book-btn { background: var(--primary); color: white; border: none; padding: 0.75rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .add-book-btn:hover { background: #2D6A4F; }
-        .delete-btn { background: #FEE2E2; color: #EF4444; border: none; padding: 0.4rem 0.8rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
-        .empty-state { text-align: center; color: var(--muted); padding: 3rem; font-style: italic; }
+        .book-input, .book-input-pages { flex: 1; min-width: 100px; padding: 0.75rem; border: 2px solid var(--card-border); border-radius: 8px; font-size: 0.9rem; font-family: inherit; font-weight: 500; color: var(--text); outline: none; transition: 0.2s;}
+        .book-input:focus, .book-input-pages:focus { border-color: var(--secondary); }
+        .book-input-pages { width: 80px; flex: none; }
+        
+        .empty-state { text-align: center; color: var(--muted); padding: 3rem; font-style: italic; font-weight: 600; }
 
         /* Completion Form */
-        .completion-box { margin-top: 1rem; padding: 1rem; background: #F0FFF4; border-radius: 8px; border: 1px solid #C6F6D5; }
-        .completion-text { font-size: 0.9rem; color: #166534; font-weight: bold; margin-bottom: 0.5rem; }
+        .completion-box { margin-top: 1rem; padding: 1rem; background: #FFFFFF; border-radius: 12px; border: 1px solid var(--card-border); text-align: center; }
+        .completion-text { font-size: 0.95rem; color: var(--primary); font-weight: 700; margin-bottom: 0.8rem; }
 
-        /* Modals */
+        /* ================= MODALS ================= */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(27, 67, 50, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.open { opacity: 1; pointer-events: auto; }
-        .login-modal { background: white; padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
-        .modal-overlay.open .login-modal { transform: translateY(0); }
-        .login-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; }
-        .login-desc { color: var(--muted); margin-bottom: 2rem; }
-        .google-btn { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 12px; background: white; color: #444; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .google-btn:hover { background: #f9f9f9; border-color: #ddd; }
-        .google-icon { width: 20px; height: 20px; }
-        .close-modal { margin-top: 1.5rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
+        
+        .modal-card-style {
+            background: var(--card-soft); 
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            transform: translateY(20px); 
+            transition: transform 0.3s ease;
+            max-height: 90vh; 
+            overflow-y: auto;
+        }
+        .modal-overlay.open .modal-card-style { transform: translateY(0); }
+        
+        .modal-card-header {
+            background: var(--card-border);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            border-bottom: 2px solid #FFFFFF;
+        }
+        
+        .modal-card-header h2 {
+            font-family: 'DM Sans', sans-serif;
+            color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .modal-card-body {
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        
+        .close-modal { margin-top: 1.5rem; background: none; border: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 0.95rem; font-weight: 600; }
 
-        /* Footer */
-        footer { text-align: center; padding: 3rem 2rem; font-size: 0.9rem; color: var(--muted); border-top: 1px solid #eee; background: var(--bg); }
-        footer a { color: #2D6A4F; text-decoration: none; font-weight: 600; }
+        /* ================= FOOTER ================= */
+        footer { text-align: center; padding: 3rem 2rem; font-size: 0.9rem; color: var(--muted); border-top: 1px solid var(--card-border); background: #FFFFFF; font-weight: 600; }
+        footer a { color: var(--secondary-dark); text-decoration: none; font-weight: 700; }
 
         @media (max-width: 600px) {
             .addons-grid { grid-template-columns: 1fr; }
@@ -217,142 +397,199 @@
 
 <body>
 
-<!-- Modals -->
+<!-- ================= MODALS ================= -->
+
+<!-- Login Modal -->
 <div class="modal-overlay" id="loginModal">
-    <div class="login-modal">
-        <h2 class="login-title">Welcome!</h2>
-        <p class="login-desc">Sign in to join projects and track your community service.</p>
-        <button class="google-btn" onclick="handleLogin()">
-            <svg class="google-icon" viewBox="0 0 48 48">
-                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
-                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.652-3.342-11.303-8l-6.571,4.827C9.656,39.663,16.318,44,24,44z"/>
-                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
-            </svg>
-            Sign in with Google
-        </button>
-        <button class="close-modal" onclick="toggleModal(false)">Cancel</button>
+    <div class="modal-card-style">
+        <div class="modal-card-header">
+            <span style="font-size: 1.8rem;">📚</span>
+            <h2>Login / Register</h2>
+        </div>
+        <div class="modal-card-body">
+            <p style="color: var(--primary); font-weight: 600; margin-bottom: 2rem; font-size: 1.05rem;">Need some extra help or want to track your progress? Sign in to continue!</p>
+            <button class="green-pill-btn" onclick="window.handleLogin()">
+                <svg class="google-icon" viewBox="0 0 48 48" style="background: white; border-radius: 50%; padding: 2px; width: 28px; height: 28px;">
+                    <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                    <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.652-3.342-11.303-8l-6.571,4.827C9.656,39.663,16.318,44,24,44z"/>
+                    <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                </svg>
+                Sign in with Google
+            </button>
+            <button class="close-modal" onclick="window.toggleModal(false)">Cancel</button>
+        </div>
     </div>
 </div>
 
 <!-- Profile Modal -->
 <div class="modal-overlay" id="profileModal">
-    <div class="login-modal">
-        <h2 class="login-title" id="profileModalTitle">One Last Step! 📝</h2>
-        <p class="login-desc" id="profileModalDesc">Tell us a little about yourself to finish your profile.</p>
-        <form id="profileForm">
-            <div class="form-group" style="text-align: left;">
-                <label for="profileName">Your Name</label>
-                <input type="text" id="profileName" class="form-control" placeholder="What should we call you?" required>
-            </div>
-            <div class="form-group" style="text-align: left;">
-                <label for="profileAge">Your Age</label>
-                <select id="profileAge" class="form-control" required>
-                    <option value="" disabled selected>Select age</option>
-                    <option value="0">0 (Infant)</option>
-                    <option value="1">1 year old</option>
-                    <option value="2">2 years old</option>
-                    <option value="3">3 years old</option>
-                    <option value="4">4 years old</option>
-                    <option value="5">5 years old</option>
-                    <option value="6">6 years old</option>
-                    <option value="7">7 years old</option>
-                    <option value="8">8 years old</option>
-                    <option value="9">9 years old</option>
-                    <option value="10">10 years old</option>
-                    <option value="11">11 years old</option>
-                    <option value="12">12 years old</option>
-                    <option value="13">13 years old</option>
-                    <option value="14">14 years old</option>
-                    <option value="15">15+ years old</option>
-                </select>
-            </div>
-            
-            <div class="form-group" style="text-align: left;">
-                <label for="profilePhone">Phone Number <span style="font-weight: normal; color: #666; font-size: 0.85rem;">(Optional)</span></label>
-                <input type="tel" id="profilePhone" class="form-control" placeholder="e.g. 555-123-4567">
-            </div>
-            <div class="form-group" style="text-align: left;">
-                <label for="profileSchool">School Name <span style="font-weight: normal; color: #666; font-size: 0.85rem;">(Optional)</span></label>
-                <input type="text" id="profileSchool" class="form-control" placeholder="e.g. Lincoln Elementary">
-            </div>
+    <div class="modal-card-style">
+        <div class="modal-card-header">
+            <span style="font-size: 1.8rem;">📝</span>
+            <h2 id="profileModalTitle">One Last Step!</h2>
+        </div>
+        <div class="modal-card-body">
+            <p id="profileModalDesc" style="color: var(--primary); font-weight: 600; margin-bottom: 1.5rem;">Tell us a little about yourself.</p>
+            <form id="profileForm">
+                <div class="form-group" style="text-align: left;">
+                    <label for="profileName">Your Name</label>
+                    <input type="text" id="profileName" class="form-control" placeholder="What should we call you?" required>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label for="profileAge">Your Age</label>
+                    <select id="profileAge" class="form-control" required>
+                        <option value="" disabled selected>Select age</option>
+                        <option value="0">0 (Infant)</option>
+                        <option value="1">1 year old</option>
+                        <option value="2">2 years old</option>
+                        <option value="3">3 years old</option>
+                        <option value="4">4 years old</option>
+                        <option value="5">5 years old</option>
+                        <option value="6">6 years old</option>
+                        <option value="7">7 years old</option>
+                        <option value="8">8 years old</option>
+                        <option value="9">9 years old</option>
+                        <option value="10">10 years old</option>
+                        <option value="11">11 years old</option>
+                        <option value="12">12 years old</option>
+                        <option value="13">13 years old</option>
+                        <option value="14">14 years old</option>
+                        <option value="15">15+ years old</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="text-align: left;">
+                    <label for="profilePhone">Phone Number <span style="font-weight: normal; color: var(--muted); font-size: 0.85rem;">(Optional)</span></label>
+                    <input type="tel" id="profilePhone" class="form-control" placeholder="e.g. 555-123-4567">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label for="profileSchool">School Name <span style="font-weight: normal; color: var(--muted); font-size: 0.85rem;">(Optional)</span></label>
+                    <input type="text" id="profileSchool" class="form-control" placeholder="e.g. Lincoln Elementary">
+                </div>
 
-            <button type="submit" class="submit-btn" id="profileSubmitBtn">Complete Profile</button>
-            <button type="button" class="close-modal" id="profileCancelBtn" onclick="toggleProfileModal(false)" style="display:none; width: 100%; margin-top: 1rem;">Cancel</button>
-        </form>
+                <button type="submit" class="green-pill-btn" id="profileSubmitBtn" style="margin-top: 1rem;">Complete Profile</button>
+                <button type="button" class="close-modal" id="profileCancelBtn" onclick="window.toggleProfileModal(false)" style="display:none; width: 100%; margin-top: 1rem;">Cancel</button>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Contact Us Modal -->
 <div class="modal-overlay" id="contactModal">
-    <div class="login-modal" style="text-align: left; max-width: 350px;">
-        <h2 class="login-title" style="text-align: center;">Contact Us 📬</h2>
-        <p class="login-desc" style="text-align: center; margin-bottom: 2rem;">We'd love to hear from you!</p>
-        
-        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
-            <strong style="color: var(--primary);">Contact Person:</strong><br> Vibha Chunduri
+    <div class="modal-card-style" style="max-width: 350px;">
+        <div class="modal-card-header">
+            <span style="font-size: 1.8rem;">📬</span>
+            <h2>Contact Us</h2>
         </div>
-        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
-            <strong style="color: var(--primary);">Email:</strong><br> <a href="mailto:communityequityinc@gmail.com" style="color: var(--secondary); font-weight: 600; text-decoration: none;">communityequityinc@gmail.com</a>
-        </div>
-        <div style="margin-bottom: 1rem; color: #444; line-height: 1.4;">
-            <strong style="color: var(--primary);">Phone:</strong><br> <a href="tel:+18325547633" style="color: var(--secondary); font-weight: 600; text-decoration: none;">(832) 554-7633</a>
-        </div>
-        <div style="margin-bottom: 2rem; color: #444; line-height: 1.4;">
-            <strong style="color: var(--primary);">Address:</strong><br> TX, USA
-        </div>
+        <div class="modal-card-body" style="text-align: left;">
+            <p style="color: var(--primary); text-align: center; font-weight: 600; margin-bottom: 2rem;">We'd love to hear from you!</p>
+            
+            <div style="margin-bottom: 1rem; color: var(--primary); line-height: 1.4;">
+                <strong>Contact Person:</strong><br> <span style="color: var(--text);">Vibha Chunduri</span>
+            </div>
+            <div style="margin-bottom: 1rem; color: var(--primary); line-height: 1.4;">
+                <strong>Email:</strong><br> <a href="mailto:communityequityinc@gmail.com" style="color: var(--secondary-dark); font-weight: 700; text-decoration: none;">communityequityinc@gmail.com</a>
+            </div>
+            <div style="margin-bottom: 1rem; color: var(--primary); line-height: 1.4;">
+                <strong>Phone:</strong><br> <a href="tel:+18325547633" style="color: var(--secondary-dark); font-weight: 700; text-decoration: none;">(832) 554-7633</a>
+            </div>
+            <div style="margin-bottom: 2rem; color: var(--primary); line-height: 1.4;">
+                <strong>Address:</strong><br> <span style="color: var(--text);">TX, USA</span>
+            </div>
 
-        <button class="submit-btn" onclick="toggleContactModal(false)">Close</button>
+            <button class="green-pill-btn" onclick="window.toggleContactModal(false)">Close</button>
+        </div>
     </div>
 </div>
 
 <!-- Unified Notification & Confirmation Modal -->
 <div class="modal-overlay" id="msgModal">
-    <div class="login-modal" style="text-align: center; max-width: 400px;">
-        <h2 class="login-title" id="msgModalTitle">Notification</h2>
-        <p class="login-desc" id="msgModalDesc">Message goes here.</p>
-        <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;" id="msgModalActions">
-            <!-- Dynamic Buttons Go Here -->
+    <div class="modal-card-style" style="max-width: 400px;">
+        <div class="modal-card-header">
+            <span style="font-size: 1.8rem;">🔔</span>
+            <h2 id="msgModalTitle">Notification</h2>
+        </div>
+        <div class="modal-card-body">
+            <p id="msgModalDesc" style="color: var(--primary); font-weight: 600;">Message goes here.</p>
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: center;" id="msgModalActions">
+                <!-- Dynamic Buttons Go Here -->
+            </div>
         </div>
     </div>
 </div>
 
-<!-- NAV -->
+<!-- ================= NAV ================= -->
 <nav>
-    <a href="#" class="logo" onclick="closeProjectDetail()">CommunityEquity<span>Inc</span></a>
-    <div class="nav-actions">
-        <button onclick="toggleContactModal(true)" class="nav-btn" style="border-color: var(--secondary); color: var(--secondary);">Contact Us</button>
-        <div id="loggedOutNav"><button onclick="toggleModal(true)" class="nav-btn">Get Involved / Login</button></div>
+    <!-- Left Column: Logo -->
+    <div class="nav-left">
+        <a href="#" class="logo-container" onclick="window.switchView('home')">
+            <div class="logo-top">
+                <span class="logo-icon">🫂</span>
+                <span class="logo-text">Community Equity Inc.</span>
+            </div>
+            <span class="logo-subtitle">Serve Inc. Community</span>
+        </a>
+    </div>
+
+    <!-- Center Column: Main Links -->
+    <div class="nav-center" id="navCenterLinks">
+        <a href="#" id="nav-home" class="active" onclick="window.switchView('home')">Home</a>
+        <a href="#" id="nav-about" onclick="window.switchView('about')">About Us</a>
+        <a href="#" id="nav-programs" onclick="window.scrollToPrograms()">Programs</a>
+        <a href="#" id="nav-contact" onclick="window.toggleContactModal(true)">Contact</a>
+    </div>
+
+    <!-- Right Column: Login & Profile -->
+    <div class="nav-right">
+        <div id="loggedOutNav">
+            <a href="#" onclick="window.toggleModal(true)" style="text-decoration:none; color:var(--text); font-weight:700; transition: color 0.2s;" onmouseover="this.style.color='#74A75E'" onmouseout="this.style.color='#1B263B'">Login</a>
+        </div>
         <div id="loggedInNav" class="user-profile">
             <div class="user-avatar" id="userInitial">U</div>
             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;">
                 <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem; line-height: 1;" id="navUserName">User</span>
                 <div style="display: flex; gap: 0.8rem;">
-                    <button onclick="window.openProfileEdit()" style="background: none; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Edit Profile</button>
-                    <button onclick="window.handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0;">Logout</button>
+                    <button onclick="window.openProfileEdit()" style="background: none; border: none; color: var(--secondary-dark); font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0;">Edit Profile</button>
+                    <button onclick="window.handleLogout()" style="background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; padding: 0;">Logout</button>
                 </div>
             </div>
         </div>
     </div>
 </nav>
 
-<!-- MAIN HOME VIEW -->
+<!-- ================= ABOUT US VIEW ================= -->
+<div id="aboutView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
+    <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">About Us</h1>
+    <div style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
+        <p style="margin-bottom: 1.5rem;"><strong>Community Equity Inc.</strong> is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection.</p>
+        <p style="margin-bottom: 1.5rem;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p style="margin-bottom: 1.5rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>We empower local society by launching different kinds of youth-driven projects on a periodic basis — from literacy and education to neighborhood support and community wellness. Every project is a step toward a more connected, caring, and equitable community for everyone.</p>
+    </div>
+</div>
+
+<!-- ================= MAIN HOME VIEW ================= -->
 <div id="homeView">
-    <section class="hero">
-        <h1>Youth serving<br>community with <em>purpose.</em></h1>
-        <p>One young person on a mission to make a difference in the community.</p>
-        <div id="heroActions">
-            <button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn">
-                See Our Projects
-            </button>
+    
+    <!-- Hero Banner replacing old section -->
+    <section class="hero-banner-section">
+        <div class="hero-info-pill">
+            <span class="icon">✅</span>
+            <div class="text-content">
+                <strong style="color: #64964F; font-size: 1.3rem;">Goal:</strong> <strong style="color: #374151; font-size: 1.3rem;">Support Reading in Elementary Level.</strong><br>
+                <span>Provide additional help in elementary Core Subjects</span>
+            </div>
         </div>
-    </section>
-
-    <div class="divider"></div>
-
-    <section class="about">
-        <h2>Who We Are</h2>
-        <p>This portal is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection. We empower local society by launching different kinds of youth-driven projects on a periodic basis — from literacy and education to neighborhood support and community wellness. Every project is a step toward a more connected, caring, and equitable community for everyone.</p>
+        <div class="hero-info-pill">
+            <span class="icon">📣</span>
+            <div class="text-content">
+                <strong style="color: #0284C7; font-size: 1.3rem;">Purpose:</strong> <strong style="color: #374151; font-size: 1.3rem;">To improve literacy & advocate</strong><br>
+                <span>academic performance in elementary schools</span>
+            </div>
+        </div>
+        <!-- Hidden anchor point for dynamic JavaScript buttons -->
+        <div id="heroActions" style="margin-top: 1.5rem;"></div>
     </section>
 
     <section class="projects" id="projects">
@@ -370,7 +607,7 @@
                 <form id="projectForm">
                     <div class="form-group">
                         <label>Joining As:</label>
-                        <div style="font-size: 1.1rem; font-family: 'Playfair Display', serif; color: var(--primary);" id="joiningAsDisplay">Explorer</div>
+                        <div style="font-size: 1.1rem; font-family: 'Playfair Display', serif; color: var(--secondary-dark); font-weight: 700;" id="joiningAsDisplay">Explorer</div>
                     </div>
                     
                     <div class="form-group">
@@ -387,10 +624,10 @@
                     <button type="submit" class="submit-btn" id="submitBtn">Sign Me Up!</button>
                 </form>
 
-                <div class="success-message" id="successMessage" style="display:none;">
+                <div class="success-message" id="successMessage" style="display:none; text-align: center;">
                     <h3 style="color:var(--primary); font-family:'Playfair Display', serif; font-size:1.8rem; margin-bottom:0.5rem;">Awesome, <span id="displayKidName"></span>!</h3>
-                    <p style="color:#555;">You are officially signed up. Check your adventure log below to track your progress.</p>
-                    <p style="margin-top:1.5rem;"><button onclick="resetForm()" style="background:none; border:none; color:var(--secondary); font-weight:bold; cursor:pointer; text-decoration:underline;">Register for another project</button></p>
+                    <p style="color:var(--text); font-weight: 500;">You are officially signed up. Check your adventure log below to track your progress.</p>
+                    <p style="margin-top:1.5rem;"><button onclick="window.resetForm()" style="background:none; border:none; color:var(--secondary-dark); font-weight:bold; cursor:pointer; text-decoration:underline;">Register for another project</button></p>
                 </div>
 
                 <div class="adventure-log">
@@ -404,14 +641,14 @@
     </div>
 </div>
 
-<!-- DYNAMIC PROJECT DETAIL VIEW (Template) -->
+<!-- ================= DYNAMIC PROJECT DETAIL VIEW ================= -->
 <div id="projectDetailView">
     <div class="detail-banner">
-        <a class="detail-back" onclick="closeProjectDetail()">← Back to Home</a>
+        <a class="detail-back" onclick="window.closeProjectDetail()">← Back to Home</a>
         <span class="detail-banner-icon" id="dtIcon">📚🎡</span>
         <h1 id="dtTitle">Project Title</h1>
-        <p id="dtBannerDesc">Project Description Banner</p>
-        <span class="badge" style="background:#E9C46A; color:#1B4332; font-size:0.9rem;" id="dtBadge">Status Badge</span>
+        <div id="dtBannerDesc" class="detail-banner-desc">Project Description Banner</div>
+        <span class="badge" style="background:#FFFFFF; color:var(--secondary-dark); font-size:0.9rem;" id="dtBadge">Status Badge</span>
     </div>
 
     <div class="detail-content">
@@ -426,20 +663,19 @@
         <!-- Participants -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">👧👦</span> Who Can Participate</div>
-            <ul class="detail-list" id="dtParticipants"></ul>
+            <div class="rich-text-content" id="dtParticipants"></div>
         </div>
 
         <!-- Rules -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">📖</span> Challenge Rules</div>
-            <ul class="detail-list" id="dtRules"></ul>
+            <div class="rich-text-content" id="dtRules"></div>
         </div>
 
         <!-- Verification -->
         <div class="detail-block">
             <div class="detail-block-title"><span class="emoji">📝</span> Verification Options</div>
-            <p style="font-size:0.9rem; color:#888; margin-bottom:1rem; font-weight:300;">Choose one or combine any of the following:</p>
-            <ul class="detail-list numbered" id="dtVerification"></ul>
+            <div class="rich-text-content" id="dtVerification"></div>
         </div>
 
         <!-- Reward -->
@@ -452,8 +688,8 @@
                     <p id="dtRewardDesc">Reward Description</p>
                 </div>
             </div>
-            <p style="font-size:0.85rem; color:#999; margin-bottom:1.2rem; font-weight:300;">✨ Optional Add-ons for Extra Recognition:</p>
-            <div class="addons-grid" id="dtAddons"></div>
+            <p style="font-size:0.85rem; color:var(--muted); font-weight:600; margin-bottom:1.2rem;">✨ Optional Add-ons for Extra Recognition:</p>
+            <div class="rich-text-content" id="dtAddons"></div>
         </div>
 
         <!-- CTA -->
@@ -469,7 +705,7 @@
     <p>© 2026 CommunityEquityInc · <a href="mailto:communityequityinc@gmail.com">communityequityinc@gmail.com</a></p>
 </footer>
 
-<!-- Firebase SDKs -->
+<!-- ================= FIREBASE LOGIC ================= -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
@@ -501,12 +737,37 @@
     let userRegisteredProjectIds = new Map();
     let projectsLoaded = false;
 
-    // View Management
+    // View Management & Navigation
+    window.updateActiveNav = (activeId) => {
+        document.querySelectorAll('.nav-center a').forEach(el => el.classList.remove('active'));
+        if (activeId) {
+            const activeEl = document.getElementById(activeId);
+            if (activeEl) activeEl.classList.add('active');
+        }
+    };
+
+    window.switchView = (viewName) => {
+        document.getElementById('homeView').style.display = viewName === 'home' ? 'block' : 'none';
+        document.getElementById('aboutView').style.display = viewName === 'about' ? 'block' : 'none';
+        document.getElementById('projectDetailView').style.display = 'none';
+        window.scrollTo(0,0);
+        window.updateActiveNav('nav-' + viewName);
+    };
+
+    window.scrollToPrograms = () => {
+        window.switchView('home');
+        setTimeout(() => {
+            const projectsSection = document.getElementById('projects');
+            if (projectsSection) projectsSection.scrollIntoView({behavior: 'smooth'});
+            window.updateActiveNav('nav-programs');
+        }, 50);
+    };
+
     window.toggleModal = (show) => { const m = document.getElementById('loginModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     window.toggleProfileModal = (show) => { const m = document.getElementById('profileModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     window.toggleContactModal = (show) => { const m = document.getElementById('contactModal'); show ? m.classList.add('open') : m.classList.remove('open'); }
     
-    // Universal Custom Messaging (replaces browser alert() and confirm())
+    // Universal Custom Messaging
     window.showCustomMsg = (title, description, isConfirm = false) => {
         return new Promise((resolve) => {
             document.getElementById('msgModalTitle').innerText = title;
@@ -515,21 +776,17 @@
             const actions = document.getElementById('msgModalActions');
             modal.classList.add('open');
             
-            const cleanup = () => {
-                modal.classList.remove('open');
-            };
+            const cleanup = () => { modal.classList.remove('open'); };
 
             if (isConfirm) {
                 actions.innerHTML = `
-                    <button class="submit-btn" id="msgBtnYes" style="margin-top: 0; flex: 1; background: var(--secondary);">Yes</button>
-                    <button class="submit-btn" id="msgBtnNo" style="margin-top: 0; flex: 1; background: #6B7280;">No</button>
+                    <button class="green-pill-btn" id="msgBtnYes" style="flex: 1;">Yes</button>
+                    <button class="green-pill-btn" id="msgBtnNo" style="flex: 1; background: linear-gradient(180deg, #9CA3AF 0%, #6B7280 100%); border-color: #6B7280; box-shadow: none;">No</button>
                 `;
                 document.getElementById('msgBtnYes').onclick = () => { cleanup(); resolve(true); };
                 document.getElementById('msgBtnNo').onclick = () => { cleanup(); resolve(false); };
             } else {
-                actions.innerHTML = `
-                    <button class="submit-btn" id="msgBtnOk" style="margin-top: 0; width: 100%; background: var(--primary);">OK</button>
-                `;
+                actions.innerHTML = `<button class="green-pill-btn" id="msgBtnOk" style="width: 100%;">OK</button>`;
                 document.getElementById('msgBtnOk').onclick = () => { cleanup(); resolve(true); };
             }
         });
@@ -547,7 +804,7 @@
         document.getElementById('profilePhone').value = profile.phone || "";
         document.getElementById('profileSchool').value = profile.school || "";
         
-        toggleProfileModal(true);
+        window.toggleProfileModal(true);
     };
 
     function updateProjectDropdownUI() {
@@ -572,6 +829,16 @@
         });
     }
 
+    document.getElementById('projectChoice').addEventListener('change', (e) => {
+        const btn = document.getElementById('viewDetailsBtn');
+        if(e.target.value) {
+            btn.style.display = 'flex';
+            btn.onclick = () => window.openProjectDetail(e.target.value);
+        } else {
+            btn.style.display = 'none';
+        }
+    });
+
     window.openProjectDetail = (projectId) => {
         const p = loadedProjects[projectId];
         if(!p) return;
@@ -579,29 +846,30 @@
 
         document.getElementById('dtIcon').innerText = p.icon || '📌';
         document.getElementById('dtTitle').innerText = p.title || 'Project';
-        document.getElementById('dtBannerDesc').innerText = p.bannerDesc || p.description || '';
+        document.getElementById('dtBannerDesc').innerHTML = p.bannerDesc || p.description || '';
         document.getElementById('dtBadge').innerText = p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open Now');
         document.getElementById('dtInfoName').innerText = p.title || '';
         document.getElementById('dtDuration').innerText = p.duration || 'TBD';
         document.getElementById('dtLocation').innerText = p.location || 'TBD';
         
-        const renderList = (text, id) => {
+        const renderRichText = (htmlContent, id) => {
             const el = document.getElementById(id);
-            if(!text) { el.innerHTML = '<li>TBD</li>'; return; }
-            el.innerHTML = text.split('\n').filter(i=>i.trim()).map(i=>`<li>${i}</li>`).join('');
+            if(!htmlContent || htmlContent === '<p><br></p>') { el.innerHTML = '<p style="color:#888;">TBD</p>'; return; }
+            el.innerHTML = htmlContent;
         };
         
-        renderList(p.participants, 'dtParticipants');
-        renderList(p.rules, 'dtRules');
-        renderList(p.verification, 'dtVerification');
+        renderRichText(p.participants, 'dtParticipants');
+        renderRichText(p.rules, 'dtRules');
+        renderRichText(p.verification, 'dtVerification');
         
         document.getElementById('dtRewardTitle').innerText = p.rewardTitle || 'Certificate of Completion';
         document.getElementById('dtRewardDesc').innerText = p.rewardDesc || 'For finishing the program.';
         
-        const addonsEl = document.getElementById('dtAddons');
-        if(p.addons) {
-            addonsEl.innerHTML = p.addons.split('\n').filter(i=>i.trim()).map(i=>`<div class="addon-item">${i}</div>`).join('');
-        } else { addonsEl.innerHTML = '<div class="addon-item">🏅 Certificate</div>'; }
+        if(p.addons && p.addons !== '<p><br></p>') {
+            document.getElementById('dtAddons').innerHTML = p.addons;
+        } else { 
+            document.getElementById('dtAddons').innerHTML = '<div class="addon-item">🏅 Certificate</div>'; 
+        }
 
         updateDetailCTA();
         document.getElementById('homeView').style.display = 'none';
@@ -611,20 +879,16 @@
 
     window.closeProjectDetail = () => {
         currentOpenProject = null;
-        document.getElementById('projectDetailView').style.display = 'none';
-        document.getElementById('homeView').style.display = 'block';
+        window.switchView('home');
     };
 
     function updateDetailCTA() {
         const ctaBtn = document.getElementById('dtCtaBtn');
         if(!currentOpenProject) return;
 
-        // Reset inline styles
+        ctaBtn.className = 'cta-btn';
         ctaBtn.style.background = "";
-        ctaBtn.style.color = "";
-        ctaBtn.style.opacity = "";
-        ctaBtn.style.cursor = "";
-
+        
         if (currentOpenProject.status === 'upcoming') {
             ctaBtn.innerText = "Opening Soon";
             ctaBtn.style.opacity = "0.6";
@@ -634,19 +898,22 @@
         }
 
         if (currentUser && !currentUser.isAnonymous) {
-            if (userRegisteredProjectIds.has(currentOpenProject.id)) {
+            if (!currentUserProfile || !currentUserProfile.name) {
+                ctaBtn.innerText = "Complete Profile to Register";
+                ctaBtn.onclick = () => window.openProfileEdit();
+            } else if (userRegisteredProjectIds.has(currentOpenProject.id)) {
                 ctaBtn.innerText = "Cancel Registration";
-                ctaBtn.style.background = "#FEE2E2";
-                ctaBtn.style.color = "#EF4444";
+                ctaBtn.style.background = "linear-gradient(180deg, #EF4444 0%, #DC2626 100%)";
                 ctaBtn.onclick = async () => {
                     const regId = userRegisteredProjectIds.get(currentOpenProject.id);
                     const safeName = (currentOpenProject.title || '').replace(/'/g, "\\'");
                     await window.cancelRegistration(regId, safeName);
+                    window.closeProjectDetail();
                 };
             } else {
                 ctaBtn.innerText = "Register Now";
                 ctaBtn.onclick = () => {
-                    closeProjectDetail();
+                    window.closeProjectDetail();
                     document.getElementById('projectChoice').value = currentOpenProject.id;
                     document.getElementById('projectChoice').dispatchEvent(new Event('change'));
                     document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'});
@@ -654,14 +921,14 @@
             }
         } else {
             ctaBtn.innerText = "Login to Register";
-            ctaBtn.onclick = () => toggleModal(true);
+            ctaBtn.onclick = () => window.toggleModal(true);
         }
     }
 
     const initAuth = async () => {
         try {
-            await auth.authStateReady(); // Wait for Firebase to check browser memory
-            if (auth.currentUser) return; // If session exists, do not overwrite it
+            await auth.authStateReady(); 
+            if (auth.currentUser) return; 
             
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
@@ -683,7 +950,7 @@
             loadedProjects = {};
 
             if (snapshot.empty) { 
-                grid.innerHTML = '<p style="text-align:center; width:100%; color: var(--muted);">No projects available right now. Check back later!</p>'; 
+                grid.innerHTML = '<p style="text-align:center; width:100%; color: var(--muted); font-weight: 600;">No projects available right now. Check back later!</p>'; 
                 return; 
             }
 
@@ -692,7 +959,7 @@
                 loadedProjects[docSnap.id] = { ...p, id: docSnap.id };
 
                 grid.innerHTML += `
-                    <div class="project-card" onclick="openProjectDetail('${docSnap.id}')">
+                    <div class="project-card" onclick="window.openProjectDetail('${docSnap.id}')">
                         <div class="project-icon">${p.icon || '📌'}</div>
                         <h3>${p.title}</h3>
                         <p>${p.description}</p>
@@ -707,9 +974,7 @@
             
             updateProjectDropdownUI();
             if (currentOpenProject) updateDetailCTA();
-        }, (error) => {
-            console.error("Error fetching projects:", error);
-        });
+        }, (error) => { console.error("Error fetching projects:", error); });
     }
 
     loadProjects();
@@ -746,17 +1011,19 @@
                 currentUserProfile = snap.data();
                 updateUIForLoggedIn(user, currentUserProfile);
             } else {
+                currentUserProfile = null; 
                 document.getElementById('profileModalTitle').innerText = "One Last Step! 📝";
                 document.getElementById('profileModalDesc').innerText = "Tell us a little about yourself to finish your profile.";
                 document.getElementById('profileSubmitBtn').innerText = "Complete Profile";
-                document.getElementById('profileCancelBtn').style.display = "none";
+                document.getElementById('profileCancelBtn').style.display = "inline-block"; 
                 document.getElementById('profileName').value = "";
                 document.getElementById('profileAge').value = "";
                 document.getElementById('profilePhone').value = "";
                 document.getElementById('profileSchool').value = "";
                 
-                toggleModal(false); 
-                toggleProfileModal(true);
+                window.toggleModal(false); 
+                window.toggleProfileModal(true);
+                updateUIForLoggedIn(user, null); 
             }
         } catch (e) { console.error(e); }
     }
@@ -789,7 +1056,7 @@
             }
 
             currentUserProfile = data; 
-            toggleProfileModal(false); 
+            window.toggleProfileModal(false); 
             updateUIForLoggedIn(currentUser, data);
         } catch (err) { 
             console.error(err);
@@ -806,12 +1073,14 @@
         
         document.getElementById('userInitial').innerText = profile && profile.name ? profile.name.charAt(0).toUpperCase() : 'U';
         document.getElementById('navUserName').innerText = profile && profile.name ? profile.name : "Member";
-        document.getElementById('joiningAsDisplay').innerText = profile ? `${profile.name} (Age ${profile.age})` : "Member";
+        document.getElementById('joiningAsDisplay').innerText = profile && profile.name ? `${profile.name} (Age ${profile.age})` : "Member (Profile Incomplete)";
 
-        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('secureContent').scrollIntoView({behavior: 'smooth'})" class="hero-btn">Register for a Project ↓</button>`;
+        // Hide Hero Button and show Dashboard when logged in
+        document.getElementById('heroActions').innerHTML = '';
 
         const sc = document.getElementById('secureContent'); sc.style.display = 'block'; setTimeout(() => sc.classList.add('visible'), 50);
-        window.toggleModal(false); setupRealtimeLog(user.uid);
+        window.toggleModal(false); 
+        setupRealtimeLog(user.uid);
     }
 
     const updateUIForLoggedOut = () => {
@@ -820,14 +1089,16 @@
         const sc = document.getElementById('secureContent'); 
         sc.classList.remove('visible'); 
         setTimeout(() => sc.style.display = 'none', 300);
-        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: white; color: var(--primary); margin-right: 1rem;">Explore Projects</button><button onclick="toggleModal(true)" class="hero-btn">Login to Register</button>`;
+        
+        // Show Hero Buttons for Logged out users
+        document.getElementById('heroActions').innerHTML = `<button onclick="document.getElementById('projects').scrollIntoView({behavior: 'smooth'})" class="hero-btn" style="background: rgba(255,255,255,0.9); color: var(--primary);">Explore Projects</button>`;
     }
     
     window.handleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
             const result = await signInWithPopup(auth, provider);
-            toggleModal(false);
+            window.toggleModal(false);
             console.log("Logged in as:", result.user.displayName);
         } catch (error) {
             console.error("Login failed:", error);
@@ -836,26 +1107,17 @@
     };
     
     window.handleLogout = async () => {
-        if (unsubscribeLog) {
-            unsubscribeLog();
-            unsubscribeLog = null;
-        }
-
+        if (unsubscribeLog) { unsubscribeLog(); unsubscribeLog = null; }
         try {
             await signOut(auth);
             currentUserProfile = null;
             await signInAnonymously(auth); 
-        } catch (error) {
-            console.error("Logout error:", error);
-        }
+        } catch (error) { console.error("Logout error:", error); }
     };
 
     function setupRealtimeLog(userId) {
         if (unsubscribeLog) unsubscribeLog();
-        const q = query(
-            collection(db, 'artifacts', appId, 'public', 'data', 'registrations'),
-            where("userId", "==", userId)
-        );
+        const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), where("userId", "==", userId));
 
         unsubscribeLog = onSnapshot(q, (snapshot) => {
             const logContainer = document.getElementById('logContainer'); if (!logContainer) return;
@@ -886,7 +1148,7 @@
                     const bks = d.books || []; 
                     const targetBooks = d.minBooks || 3; 
                     
-                    let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:#aaa; font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:#888; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
+                    let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:var(--muted); font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:var(--muted); font-weight:500; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
                     let form = '';
                     
                     if (bks.length < targetBooks) {
@@ -901,25 +1163,25 @@
                     }
                     action = `<div class="book-log-container">${list}${form}</div>`;
                 } else if (isSimple) {
-                    action = `<div class="action-row" style="background:#F3F4F6; padding:1rem; border-radius:8px;"><span style="font-size:0.95rem; font-weight:600; color:#4B5563;">Status: ${isDone ? 'Completed 🎉' : 'Registered (Awaiting Event)'}</span></div>`;
+                    action = `<div class="action-row" style="background:#FFFFFF; border: 1px solid var(--card-border); padding:1rem; border-radius:12px;"><span style="font-size:0.95rem; font-weight:700; color:var(--primary);">Status: ${isDone ? 'Completed 🎉' : 'Registered (Awaiting Event)'}</span></div>`;
                 } else {
-                    action = `<div class="action-row"><span style="font-size:0.9rem; font-weight:600; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
+                    action = `<div class="action-row" style="background:#FFFFFF; border: 1px solid var(--card-border); padding:1rem; border-radius:12px;"><span style="font-size:0.9rem; font-weight:700; color:var(--primary);">${prog}% Complete</span>${prog < 100 ? `<button class="progress-btn" onclick="window.updateProgress('${d.id}', ${prog})">+ Add Progress</button>` : `<span style="color:var(--secondary); font-weight:bold; font-size:0.9rem;">Great Job!</span>`}</div>`;
                 }
 
                 let completionBlock = '';
                 if (isDone) {
                     if (isSimple) {
                         completionBlock = `
-                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#F0FFF4; border-radius:8px;">
+                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#FFFFFF; border: 1px solid var(--card-border); border-radius:12px;">
                                 <div style="color:var(--primary); font-weight:bold; font-size:1.1rem;">🎉 Project Completed!</div>
-                                <div style="font-size:0.85rem; color:#166534; margin-top:0.3rem;">Verified by Admin</div>
+                                <div style="font-size:0.85rem; color:var(--secondary-dark); font-weight:600; margin-top:0.3rem;">Verified by Admin</div>
                             </div>
                         `;
                     } else if (d.parentName) {
                         completionBlock = `
-                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#F0FFF4; border-radius:8px;">
+                            <div style="text-align:center; margin-top:1rem; padding:1rem; background:#FFFFFF; border: 1px solid var(--card-border); border-radius:12px;">
                                 <div style="color:var(--primary); font-weight:bold; font-size:1.1rem;">🎉 Project Completed!</div>
-                                <div style="font-size:0.85rem; color:#166534; margin-top:0.3rem;">Verified by: ${d.parentName}</div>
+                                <div style="font-size:0.85rem; color:var(--secondary-dark); font-weight:600; margin-top:0.3rem;">Verified by: ${d.parentName}</div>
                             </div>
                         `;
                     } else {
@@ -927,8 +1189,8 @@
                             <div class="completion-box">
                                 <p class="completion-text">🎉 Goal Reached! Final Step: Parent Signature</p>
                                 <div style="display:flex; gap:0.5rem;">
-                                    <input type="text" id="parent-${d.id}" class="book-input" style="background:white; border-color:#86EFAC;" placeholder="Parent/Guardian Name" required>
-                                    <button class="add-book-btn" style="background:#166534; white-space:nowrap;" onclick="window.signCompletion('${d.id}')">Sign Off</button>
+                                    <input type="text" id="parent-${d.id}" class="book-input" style="background:#FFFFFF;" placeholder="Parent/Guardian Name" required>
+                                    <button class="add-book-btn" style="white-space:nowrap;" onclick="window.signCompletion('${d.id}')">Sign Off</button>
                                 </div>
                             </div>
                         `;
@@ -944,8 +1206,15 @@
     }
 
     document.getElementById('projectForm').addEventListener('submit', async (e) => {
-        e.preventDefault(); if (!currentUser || !currentUserProfile) return;
+        e.preventDefault(); 
+        if (!currentUser) return;
         
+        if (!currentUserProfile || !currentUserProfile.name) {
+            await window.showCustomMsg("Profile Required", "Please complete your profile to register for projects.");
+            window.openProfileEdit();
+            return;
+        }
+
         const pId = document.getElementById('projectChoice').value; 
         if (!pId) {
             await window.showCustomMsg("Required", "Please select a project.");
@@ -958,8 +1227,6 @@
         }
 
         const pData = loadedProjects[pId];
-
-        // ADDED REGISTRATION CONFIRMATION 🛡️
         const confirmed = await window.showCustomMsg("Confirm Registration", `Are you sure you want to register for "${pData.title}"?`, true);
         if (!confirmed) return;
 
@@ -987,7 +1254,6 @@
         } catch (err) { await window.showCustomMsg("Error", "We couldn't save your spot."); } finally { btn.disabled = false; btn.innerText = "Sign Me Up!"; }
     });
 
-    // ADDED DEREGISTRATION CONFIRMATION 🛡️
     window.cancelRegistration = async (id, projectName) => { 
         if (!currentUser) return;
         const confirmed = await window.showCustomMsg("Cancel Registration", `Are you sure you want to cancel your registration for "${projectName}"? This action cannot be undone.`, true);
@@ -1058,6 +1324,5 @@
     };
 
 </script>
-
 </body>
 </html>
