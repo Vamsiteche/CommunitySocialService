@@ -27,6 +27,8 @@
         /* Login */
         #loginOverlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--primary); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: var(--white); padding: 3rem; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); }
+        .admin-logo { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2rem; color: var(--primary); margin-bottom: 0.5rem; display: block; }
+        .admin-logo span { color: var(--secondary); }
         .google-btn { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; padding: 1rem; border: 2px solid #eee; border-radius: 12px; background: white; color: #444; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 2rem; }
         .google-btn:hover { background: #f9f9f9; border-color: #ddd; }
         .google-icon { width: 20px; height: 20px; }
@@ -37,7 +39,7 @@
         .header-title h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--primary); }
         .logout-btn { background: transparent; border: 1px solid #DC2626; color: #DC2626; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .logout-btn:hover { background: #FEE2E2; }
-        .admin-nav { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .admin-nav { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .tab-btn { padding: 0.75rem 1.5rem; border: none; background: white; color: #666; border-radius: 50px; cursor: pointer; font-weight: 600; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(27, 67, 50, 0.2); }
 
@@ -76,7 +78,7 @@
         .projects-list { display: grid; grid-template-columns: 1fr; gap: 1rem; }
         .admin-project-card { background: white; padding: 1.5rem; border-radius: 12px; border: 1px solid #E5E7EB; position: relative; }
         .ap-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
-        .ap-icon { font-size: 2rem; background: #F3F4F6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+        .ap-icon { font-size: 2rem; background: #F3F4F6; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 8px; object-fit: contain; }
         .ap-title { font-weight: bold; color: var(--primary); font-size: 1.1rem; }
         .ap-type { font-size: 0.75rem; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
         
@@ -84,6 +86,10 @@
         .ap-edit:hover { background: #A7F3D0; }
         .ap-delete { color: #DC2626; background: #FEE2E2; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
         .ap-delete:hover { background: #FECACA; }
+
+        /* File Input Styling */
+        input[type="file"].pm-input { padding: 0.5rem; background: #F9FAFB; cursor: pointer; }
+        .image-preview { max-width: 100%; max-height: 150px; margin-top: 1rem; border-radius: 8px; border: 1px dashed #ccc; padding: 0.5rem; display: none; object-fit: contain; }
 
         @media (max-width: 1024px) { .pm-grid { grid-template-columns: 1fr; } .pm-form-row { grid-template-columns: 1fr; } }
     </style>
@@ -130,7 +136,9 @@
         <div class="admin-nav">
             <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">Overview</button>
             <button class="tab-btn" onclick="switchTab('projects')" id="tab-projects">Manage Projects</button>
+            <button class="tab-btn" onclick="switchTab('sponsors')" id="tab-sponsors">Manage Sponsors</button>
             <button class="tab-btn" onclick="switchTab('pages')" id="tab-pages">Site Pages</button>
+            <button class="tab-btn" onclick="switchTab('reviews')" id="tab-reviews">Manage Reviews</button>
         </div>
 
         <!-- OVERVIEW TAB -->
@@ -298,8 +306,72 @@
             </div>
         </div>
 
+        <!-- SPONSORS TAB -->
+        <div id="view-sponsors" style="display: none;">
+            <div class="pm-grid">
+                <!-- Add Sponsor Form -->
+                <div class="add-project-card" id="sponsorFormCardWrapper">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;" id="sFormTitle">Add New Sponsor</h3>
+                    <form id="addSponsorForm">
+                        
+                        <div class="pm-form-group">
+                            <label>Sponsor Name</label>
+                            <input type="text" id="sName" class="pm-input" placeholder="e.g. ABC Corporation" required>
+                        </div>
+                        
+                        <div class="pm-form-group">
+                            <label>Sponsor Logo (Image File)</label>
+                            <input type="file" id="sLogoFile" class="pm-input" accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml">
+                            <span class="pm-help">Please upload small logo images (under 500KB) for best performance.</span>
+                            <img id="sLogoPreview" class="image-preview" src="" alt="Preview">
+                        </div>
+
+                        <div class="pm-form-group">
+                            <label>Short Description (Optional)</label>
+                            <textarea id="sDesc" class="pm-textarea" placeholder="A brief blurb about the sponsor..."></textarea>
+                        </div>
+
+                        <div class="pm-form-group">
+                            <label>Website Link (Optional)</label>
+                            <input type="url" id="sLink" class="pm-input" placeholder="https://www.example.com">
+                        </div>
+
+                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                            <button type="submit" class="pm-btn" id="submitSponsorBtn">Publish Sponsor</button>
+                            <button type="button" class="pm-btn" id="cancelSponsorEditBtn" style="display:none; background: #6B7280;" onclick="window.cancelSponsorEdit()">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Sponsors List -->
+                <div>
+                    <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Current Sponsors</h3>
+                    <div class="projects-list" id="sponsorsListContainer">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- SITE PAGES TAB -->
         <div id="view-pages" style="display: none;">
+            
+            <!-- Notification Settings -->
+            <div class="add-project-card" style="max-width: 800px; margin: auto; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Edit Hero Notification</h3>
+                <div class="pm-form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                    <input type="checkbox" id="notifEnable" style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="notifEnable" style="margin: 0; cursor: pointer;">Enable Notification Box on Homepage</label>
+                </div>
+                <div class="pm-form-group">
+                    <label>Notification Content</label>
+                    <span class="pm-help">This will appear in the box to the left of the Goal/Purpose area on the main page.</span>
+                    <div id="notificationEditor" class="quill-editor" style="min-height: 150px;"></div>
+                </div>
+                <button class="pm-btn" id="saveNotifBtn" style="margin-top: 1.5rem; width: 100%;">Save Notification Settings</button>
+            </div>
+
+            <!-- Journey Page Edit -->
             <div class="add-project-card" style="max-width: 800px; margin: auto;">
                 <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Edit Journey Page</h3>
                 <div class="pm-form-group">
@@ -310,6 +382,26 @@
                 <button class="pm-btn" id="saveJourneyBtn" style="margin-top: 1.5rem; width: 100%;">Save Journey Content</button>
             </div>
         </div>
+
+        <!-- REVIEWS TAB -->
+        <div id="view-reviews" style="display: none;">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reviewer</th>
+                            <th>Rating</th>
+                            <th>Review Text</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase -->
@@ -317,7 +409,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // Added setDoc import
         import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -337,13 +428,22 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'kids-serve-app';
 
         let projectChart = null;
-        let existingProjectTitles = new Set();
-        let adminLoadedProjects = {}; // Store raw project data for editing
-        let editingProjectId = null;  // Track if we are currently editing
         
-        // Add variables to store our active listeners
+        // Projects State
+        let existingProjectTitles = new Set();
+        let adminLoadedProjects = {}; 
+        let editingProjectId = null;  
+        
+        // Sponsors State
+        let adminLoadedSponsors = {};
+        let editingSponsorId = null;
+        let currentSponsorLogoBase64 = '';
+
+        // Active listeners
         let unsubscribeRegistrations = null;
         let unsubscribeProjects = null;
+        let unsubscribeSponsors = null;
+        let unsubscribeReviews = null;
 
         // Initialize Quill Editors
         const quillOptions = {
@@ -364,6 +464,7 @@
         const qVerification = new Quill('#pVerification', quillOptions);
         const qAddons = new Quill('#pAddons', quillOptions);
         const qJourney = new Quill('#journeyEditor', quillOptions);
+        const qNotification = new Quill('#notificationEditor', quillOptions);
 
         document.getElementById('pType').addEventListener('change', function(e) {
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
@@ -372,9 +473,14 @@
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            document.getElementById('view-overview').style.display = tabName === 'overview' ? 'block' : 'none';
-            document.getElementById('view-projects').style.display = tabName === 'projects' ? 'block' : 'none';
-            document.getElementById('view-pages').style.display = tabName === 'pages' ? 'block' : 'none';
+            
+            document.getElementById('view-overview').style.display = 'none';
+            document.getElementById('view-projects').style.display = 'none';
+            document.getElementById('view-sponsors').style.display = 'none';
+            document.getElementById('view-pages').style.display = 'none';
+            document.getElementById('view-reviews').style.display = 'none';
+
+            document.getElementById(`view-${tabName}`).style.display = 'block';
         }
 
         const AUTHORIZED_ADMIN_EMAIL = "communityequityinc@gmail.com";
@@ -392,7 +498,9 @@
                 document.getElementById('adminName').innerText = user.email;
                 setupDashboard();
                 setupProjectManager();
+                setupSponsorManager();
                 setupPagesManager();
+                setupReviewsManager();
             } else {
                 document.getElementById('loginOverlay').style.display = 'flex';
                 document.getElementById('dashboardContent').style.display = 'none';
@@ -412,19 +520,14 @@
         };
         
         window.handleLogout = async () => {
-            // Safely detach all database listeners BEFORE logging out
             if (unsubscribeRegistrations) unsubscribeRegistrations();
             if (unsubscribeProjects) unsubscribeProjects();
-            
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Logout error:", error);
-            }
+            if (unsubscribeSponsors) unsubscribeSponsors();
+            if (unsubscribeReviews) unsubscribeReviews();
+            try { await signOut(auth); } catch (error) { console.error("Logout error:", error); }
         };
 
         function setupDashboard() {
-            // Detach previous listener if it exists to avoid duplicates
             if (unsubscribeRegistrations) unsubscribeRegistrations();
             
             unsubscribeRegistrations = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
@@ -500,10 +603,12 @@
             });
         }
 
+        // ==========================
+        // PROJECT MANAGER LOGIC
+        // ==========================
         function setupProjectManager() {
             const projectsRef = collection(db, 'artifacts', appId, 'public', 'data', 'projects');
             
-            // Detach previous listener if it exists
             if (unsubscribeProjects) unsubscribeProjects();
             
             unsubscribeProjects = onSnapshot(projectsRef, (snapshot) => {
@@ -543,19 +648,16 @@
                 console.error("Database access blocked by server rules.", error);
             });
 
-            // EDIT FUNCTION
             window.editProject = (id) => {
                 const p = adminLoadedProjects[id];
                 if (!p) return;
 
                 editingProjectId = id;
                 
-                // Update UI for Edit Mode
                 document.getElementById('formTitle').innerText = "Edit Project Page";
                 document.getElementById('submitProjectBtn').innerText = "Update Project";
                 document.getElementById('cancelEditBtn').style.display = "block";
 
-                // Populate Fields
                 document.getElementById('pTitle').value = p.title || '';
                 document.getElementById('pIcon').value = p.icon || '';
                 document.getElementById('pBadge').value = p.badge || '';
@@ -581,14 +683,10 @@
                 
                 qAddons.root.innerHTML = p.addons || '';
 
-                // Handle conditional visibility
                 document.getElementById('readingSettingsWrapper').style.display = (p.type === 'reading') ? 'flex' : 'none';
-
-                // Scroll to the form
                 document.getElementById('projectFormCard').scrollIntoView({ behavior: 'smooth' });
             };
 
-            // CANCEL EDIT
             window.cancelEdit = () => {
                 editingProjectId = null;
                 document.getElementById('addProjectForm').reset();
@@ -597,7 +695,6 @@
                 document.getElementById('cancelEditBtn').style.display = "none";
                 document.getElementById('readingSettingsWrapper').style.display = 'none';
 
-                // Clear Quill Editors
                 qBanner.root.innerHTML = '';
                 qParticipants.root.innerHTML = '';
                 qRules.root.innerHTML = '';
@@ -605,16 +702,12 @@
                 qAddons.root.innerHTML = '';
             };
 
-            // FORM SUBMISSION (Handles both Add and Edit)
             document.getElementById('addProjectForm').addEventListener('submit', async (e) => {
                 e.preventDefault(); 
                 const btn = document.getElementById('submitProjectBtn');
                 const origText = btn.innerText; 
                 
                 const newTitle = document.getElementById('pTitle').value.trim();
-                
-                // If we are editing, we allow the title to remain the same as its original title.
-                // Otherwise, check if the title already exists to prevent duplicates.
                 const isTitleUnchangedDuringEdit = editingProjectId && adminLoadedProjects[editingProjectId] && adminLoadedProjects[editingProjectId].title.trim().toLowerCase() === newTitle.toLowerCase();
                 
                 if(!isTitleUnchangedDuringEdit && existingProjectTitles.has(newTitle.toLowerCase())) {
@@ -647,13 +740,11 @@
 
                 try {
                     if (editingProjectId) {
-                        // Update existing document
                         const projectDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'projects', editingProjectId);
                         await updateDoc(projectDocRef, projectData);
                         alert("Project updated successfully!");
-                        window.cancelEdit(); // resets everything
+                        window.cancelEdit(); 
                     } else {
-                        // Create new document
                         projectData.timestamp = serverTimestamp();
                         await addDoc(projectsRef, projectData);
                         e.target.reset();
@@ -676,39 +767,177 @@
             window.deleteProject = async (id) => {
                 if(confirm('Are you sure you want to delete this project?')) { 
                     try { 
-                        // If we delete the project we are currently editing, cancel the edit mode
                         if (editingProjectId === id) window.cancelEdit();
-                        
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'projects', id)); 
-                    } catch (err) { 
-                        alert("Failed to delete. You might not have server permissions."); 
-                    } 
+                    } catch (err) { alert("Failed to delete. You might not have server permissions."); } 
                 }
             }
 
-            // Global function to mark a simple project as completed from the Admin panel
             window.markComplete = async (docId) => {
                 if(confirm('Mark this participant as having completed the project?')) {
                     try {
                         await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId), { progress: 100 });
-                    } catch (err) {
-                        alert('Failed to mark complete. Please check permissions.');
-                    }
+                    } catch (err) { alert('Failed to mark complete. Please check permissions.'); }
                 }
             };
         }
-        
-        function setupPagesManager() {
-            const journeyDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'journey');
+
+        // ==========================
+        // SPONSOR MANAGER LOGIC
+        // ==========================
+        function setupSponsorManager() {
+            const sponsorsRef = collection(db, 'artifacts', appId, 'public', 'data', 'sponsors');
             
-            // Load existing content on startup
+            // Image Upload Handler
+            document.getElementById('sLogoFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Warn if file is over ~1MB (Firestore limits doc size)
+                if (file.size > 1024 * 1024) {
+                    alert("This image is quite large. Please use an image under 1MB.");
+                    e.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentSponsorLogoBase64 = event.target.result;
+                    const preview = document.getElementById('sLogoPreview');
+                    preview.src = currentSponsorLogoBase64;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (unsubscribeSponsors) unsubscribeSponsors();
+            
+            unsubscribeSponsors = onSnapshot(sponsorsRef, (snapshot) => {
+                const container = document.getElementById('sponsorsListContainer'); 
+                container.innerHTML = '';
+                adminLoadedSponsors = {};
+                
+                if (snapshot.empty) { container.innerHTML = '<p style="color:#666; font-style:italic;">No sponsors yet. Add one!</p>'; return; }
+                
+                snapshot.forEach(docSnap => {
+                    const s = docSnap.data();
+                    adminLoadedSponsors[docSnap.id] = { id: docSnap.id, ...s };
+                    
+                    let logoHtml = s.logo 
+                        ? `<img src="${s.logo}" style="max-height: 40px; max-width: 100px; object-fit: contain; margin-bottom: 0.5rem; display:block;">` 
+                        : `<div style="color:var(--muted); font-size:0.8rem; margin-bottom:0.5rem;">[No Logo]</div>`;
+
+                    container.innerHTML += `
+                        <div class="admin-project-card" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                ${logoHtml}
+                                <div class="ap-title">${s.name}</div>
+                                ${s.link ? `<a href="${s.link}" target="_blank" style="font-size:0.8rem; color:var(--secondary);">${s.link}</a>` : ''}
+                            </div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="ap-edit" onclick="window.editSponsor('${docSnap.id}')">Edit</button>
+                                <button class="ap-delete" onclick="window.deleteSponsor('${docSnap.id}')">Delete</button>
+                            </div>
+                        </div>`;
+                });
+            }, (error) => {
+                console.error("Sponsors fetch error:", error);
+            });
+
+            window.editSponsor = (id) => {
+                const s = adminLoadedSponsors[id];
+                if (!s) return;
+
+                editingSponsorId = id;
+                document.getElementById('sFormTitle').innerText = "Edit Sponsor";
+                document.getElementById('submitSponsorBtn').innerText = "Update Sponsor";
+                document.getElementById('cancelSponsorEditBtn').style.display = "block";
+
+                document.getElementById('sName').value = s.name || '';
+                document.getElementById('sDesc').value = s.description || '';
+                document.getElementById('sLink').value = s.link || '';
+                
+                currentSponsorLogoBase64 = s.logo || '';
+                const preview = document.getElementById('sLogoPreview');
+                if (currentSponsorLogoBase64) {
+                    preview.src = currentSponsorLogoBase64;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                    preview.src = '';
+                }
+                document.getElementById('sLogoFile').value = '';
+
+                document.getElementById('sponsorFormCardWrapper').scrollIntoView({ behavior: 'smooth' });
+            };
+
+            window.cancelSponsorEdit = () => {
+                editingSponsorId = null;
+                document.getElementById('addSponsorForm').reset();
+                document.getElementById('sFormTitle').innerText = "Add New Sponsor";
+                document.getElementById('submitSponsorBtn').innerText = "Publish Sponsor";
+                document.getElementById('cancelSponsorEditBtn').style.display = "none";
+                currentSponsorLogoBase64 = '';
+                const preview = document.getElementById('sLogoPreview');
+                preview.style.display = 'none';
+                preview.src = '';
+            };
+
+            document.getElementById('addSponsorForm').addEventListener('submit', async (e) => {
+                e.preventDefault(); 
+                const btn = document.getElementById('submitSponsorBtn');
+                const origText = btn.innerText; 
+                
+                btn.disabled = true; 
+                btn.innerText = editingSponsorId ? "Updating..." : "Publishing...";
+                
+                const sponsorData = {
+                    name: document.getElementById('sName').value.trim(),
+                    description: document.getElementById('sDesc').value.trim(),
+                    link: document.getElementById('sLink').value.trim(),
+                    logo: currentSponsorLogoBase64
+                };
+
+                try {
+                    if (editingSponsorId) {
+                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sponsors', editingSponsorId), sponsorData);
+                        window.cancelSponsorEdit(); 
+                    } else {
+                        sponsorData.timestamp = serverTimestamp();
+                        await addDoc(sponsorsRef, sponsorData);
+                        window.cancelSponsorEdit(); // Clears form
+                    }
+                } catch (err) { 
+                    console.error(err); 
+                    alert("Failed to process request."); 
+                } finally { 
+                    btn.disabled = false; 
+                    btn.innerText = origText; 
+                }
+            });
+
+            window.deleteSponsor = async (id) => {
+                if(confirm('Remove this sponsor?')) { 
+                    try { 
+                        if (editingSponsorId === id) window.cancelSponsorEdit();
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'sponsors', id)); 
+                    } catch (err) { alert("Failed to delete."); } 
+                }
+            }
+        }
+        
+        // ==========================
+        // SITE PAGES MANAGER LOGIC
+        // ==========================
+        function setupPagesManager() {
+            // Setup Journey Page Editor
+            const journeyDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'journey');
             getDoc(journeyDocRef).then((docSnap) => {
                 if (docSnap.exists() && docSnap.data().content) {
                     qJourney.root.innerHTML = docSnap.data().content;
                 }
             }).catch(err => console.error("Error loading journey content:", err));
 
-            // Handle Saving Journey Content
             document.getElementById('saveJourneyBtn').addEventListener('click', async () => {
                 const btn = document.getElementById('saveJourneyBtn');
                 const origText = btn.innerText;
@@ -717,7 +946,6 @@
 
                 try {
                     const content = qJourney.root.innerHTML === '<p><br></p>' ? '' : qJourney.root.innerHTML;
-                    // Use setDoc with { merge: true } so we can create it if it doesn't exist
                     await setDoc(journeyDocRef, { content: content, timestamp: serverTimestamp() }, { merge: true });
                     alert("Journey page content updated successfully!");
                 } catch (err) {
@@ -728,6 +956,92 @@
                     btn.innerText = origText;
                 }
             });
+
+            // Setup Notification Box Editor
+            const notifDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'notification');
+            getDoc(notifDocRef).then((docSnap) => {
+                if (docSnap.exists()) {
+                    document.getElementById('notifEnable').checked = docSnap.data().enabled || false;
+                    if (docSnap.data().content) {
+                        qNotification.root.innerHTML = docSnap.data().content;
+                    }
+                }
+            }).catch(err => console.error("Error loading notification content:", err));
+
+            document.getElementById('saveNotifBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('saveNotifBtn');
+                const origText = btn.innerText;
+                btn.disabled = true;
+                btn.innerText = "Saving...";
+
+                try {
+                    const enabled = document.getElementById('notifEnable').checked;
+                    const content = qNotification.root.innerHTML === '<p><br></p>' ? '' : qNotification.root.innerHTML;
+                    await setDoc(notifDocRef, { enabled: enabled, content: content, timestamp: serverTimestamp() }, { merge: true });
+                    alert("Notification settings updated successfully!");
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to save notification settings. Check permissions.");
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = origText;
+                }
+            });
+        }
+
+        // ==========================
+        // REVIEWS MANAGER LOGIC
+        // ==========================
+        function setupReviewsManager() {
+            const reviewsRef = collection(db, 'artifacts', appId, 'public', 'data', 'reviews');
+            
+            if (unsubscribeReviews) unsubscribeReviews();
+            
+            unsubscribeReviews = onSnapshot(reviewsRef, (snapshot) => {
+                const tbody = document.getElementById('reviewsTableBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666; padding: 2rem;">No reviews found.</td></tr>';
+                    return;
+                }
+                
+                let reviews = [];
+                snapshot.forEach(doc => reviews.push({id: doc.id, ...doc.data()}));
+                
+                // Sort newest first
+                reviews.sort((a, b) => (b.timestamp?.toMillis() || 0) - (a.timestamp?.toMillis() || 0));
+                
+                reviews.forEach(r => {
+                    const dateStr = r.timestamp ? new Date(r.timestamp.toDate()).toLocaleDateString() : 'N/A';
+                    const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="white-space: nowrap;">${dateStr}</td>
+                            <td><strong>${r.name}</strong></td>
+                            <td style="color:#F59E0B; font-size:1.2rem; letter-spacing: 2px;">${stars}</td>
+                            <td style="max-width: 300px; white-space: pre-wrap; color: #4B5563;">${r.text}</td>
+                            <td>
+                                <button onclick="window.deleteReview('${r.id}')" class="logout-btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }, (error) => {
+                console.error("Reviews fetch error:", error);
+            });
+
+            window.deleteReview = async (id) => {
+                if (confirm('Are you sure you want to delete this review?')) {
+                    try {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'reviews', id));
+                    } catch (e) {
+                        console.error(e);
+                        alert("Failed to delete review.");
+                    }
+                }
+            };
         }
     </script>
 </body>
