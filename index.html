@@ -1038,6 +1038,11 @@
         <h1 id="dtTitle">Project Title</h1>
         <div id="dtBannerDesc" class="detail-banner-desc">Project Description Banner</div>
         <span class="badge" style="background:#FFFFFF; color:var(--secondary-dark); font-size:0.9rem;" id="dtBadge">Status Badge</span>
+        <div id="dtAlreadyRegisteredMsg" style="display: none; margin-top: 1.5rem; text-align: center;">
+            <span style="color: #FFFFFF; font-weight: 700; font-size: 1.15rem; background: rgba(255,255,255,0.15); padding: 0.5rem 1.5rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">
+                <span style="color: var(--accent);">✓</span> You are registered for this workshop!
+            </span>
+        </div>
     </div>
 
     <div class="detail-content">
@@ -1077,8 +1082,8 @@
         </div>
 
         <div class="cta-block">
-            <h3>Ready to start? 🚀</h3>
-            <p>Register today and kick off your adventure!</p>
+            <h3 id="dtCtaTitle">Ready to start? 🚀</h3>
+            <p id="dtCtaSubtitle">Register today and kick off your adventure!</p>
             <button class="cta-btn" id="dtCtaBtn">Login to Register</button>
         </div>
     </div>
@@ -1301,10 +1306,17 @@
 
     function updateDetailCTA() {
         const ctaBtn = document.getElementById('dtCtaBtn');
+        const ctaTitle = document.getElementById('dtCtaTitle');
+        const ctaSubtitle = document.getElementById('dtCtaSubtitle');
+        const registeredMsg = document.getElementById('dtAlreadyRegisteredMsg');
+        
         if(!currentOpenProject) return;
 
         ctaBtn.className = 'cta-btn';
         ctaBtn.style.background = "";
+        ctaTitle.style.display = "block";
+        ctaSubtitle.style.display = "block";
+        registeredMsg.style.display = "none";
         
         if (currentOpenProject.status === 'upcoming') {
             ctaBtn.innerText = "Opening Soon";
@@ -1319,6 +1331,10 @@
                 ctaBtn.innerText = "Complete Profile to Register";
                 ctaBtn.onclick = () => window.openProfileEdit();
             } else if (userRegisteredProjectIds.has(currentOpenProject.id)) {
+                ctaTitle.style.display = "none";
+                ctaSubtitle.style.display = "none";
+                registeredMsg.style.display = "block";
+                
                 ctaBtn.innerText = "Cancel Registration";
                 ctaBtn.style.background = "linear-gradient(180deg, #EF4444 0%, #DC2626 100%)";
                 ctaBtn.onclick = async () => {
