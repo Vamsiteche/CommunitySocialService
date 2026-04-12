@@ -276,50 +276,93 @@
 
         .hero-content-layout {
             display: flex;
-            align-items: stretch;
+            align-items: center; 
             justify-content: center;
             gap: 2rem;
             width: 95%;
-            max-width: 1100px;
+            max-width: 1200px;
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
+            position: relative;
         }
 
-        /* Notification Box */
+        /* Notification Cloud Box */
         .hero-notification-box {
             flex: 1;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 245, 235, 0.95));
-            border: 2px solid #FFFFFF;
-            border-radius: 24px;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 8px 25px rgba(86, 132, 62, 0.15);
-            backdrop-filter: blur(8px);
+            width: 100%;
+            max-width: 360px; 
+            min-height: 240px;
+            background-image: url('notificaton.png');
+            background-size: 100% 100%; 
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2.5rem 2.5rem 3.5rem 3rem; /* Tweaked padding based on bubble shape */
             transition: all 0.3s ease;
+            cursor: help;
+            box-sizing: border-box;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
         }
 
         .hero-notification-box:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(86, 132, 62, 0.2);
+            transform: scale(1.03) translateY(-5px);
+            filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
         }
 
-        .notif-header {
+        .notif-heading {
             font-family: 'Playfair Display', serif;
             color: var(--primary);
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid var(--card-border);
-            padding-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.8rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: flex-start;
+            width: 100%;
+            gap: 0.4rem;
+            border-bottom: 2px solid rgba(56, 102, 65, 0.2);
+            padding-bottom: 0.3rem;
+        }
+
+        .notif-body {
+            width: 100%;
+            max-height: 100px;
+            overflow-y: auto;
+            text-align: left;
+            color: #1B263B;
+            font-weight: 600;
+            font-size: 0.95rem;
+            font-family: 'DM Sans', sans-serif;
+            padding-right: 5px; /* For scrollbar breathing room */
+        }
+
+        /* Custom Scrollbar for Notif Body */
+        .notif-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .notif-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .notif-body::-webkit-scrollbar-thumb {
+            background: rgba(56, 102, 65, 0.3);
+            border-radius: 10px;
+        }
+        
+        .notif-body.rich-text-content p {
+            margin-bottom: 0.5rem;
+        }
+        .notif-body.rich-text-content p:last-child {
+            margin-bottom: 1rem;
         }
 
         /* Goal/Purpose Wrapper */
         .hero-info-wrapper {
-            flex: 1.5;
+            flex: 0 1 550px;
             display: flex;
             flex-direction: column;
             align-items: stretch;
@@ -328,6 +371,12 @@
         
         .hero-info-wrapper:hover {
             transform: translateY(-3px);
+        }
+
+        .hero-spacer {
+            flex: 1;
+            width: 100%;
+            max-width: 360px; /* Matches notification box max-width exactly for true centering */
         }
 
         .hero-info-pill {
@@ -400,10 +449,16 @@
                 flex-direction: column;
                 align-items: center;
             }
-            .hero-notification-box, .hero-info-wrapper {
+            .hero-notification-box, .hero-spacer, .hero-info-wrapper {
                 width: 100%;
                 max-width: 680px;
                 flex: none;
+            }
+            .hero-notification-box {
+                order: -1;
+            }
+            .hero-spacer {
+                display: none !important;
             }
             .hero-banner-section { min-height: 400px; padding-top: 2rem; background-position: center top; }
             .hero-info-pill { padding: 1.2rem; flex-direction: column; text-align: center; gap: 0.5rem; }
@@ -436,8 +491,51 @@
         .project-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .project-icon { font-size: 3.5rem; margin-bottom: 1rem; display: inline-block; }
         .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); margin-bottom: 0.8rem; }
-        .project-card p { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; }
+        .project-desc-rich { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; text-align: center; }
+        .project-desc-rich p { margin-bottom: 0; }
         
+        /* Inline Logging Form Styles */
+        .inline-book-log {
+            display: flex;
+            gap: 0.4rem;
+            align-items: center;
+            background: #FFFFFF;
+            padding: 0.4rem;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .inline-book-log input {
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            padding: 0.4rem 0.5rem;
+            font-size: 0.85rem;
+            outline: none;
+            width: 100px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+        }
+        .inline-book-log input[type="number"] { width: 60px; }
+        .inline-book-log input:focus { border-color: var(--secondary); }
+        .inline-book-log button {
+            background: var(--secondary-dark);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .inline-book-log button:hover { background: var(--primary); }
+
+        @media (max-width: 600px) {
+            .inline-book-log { flex-wrap: wrap; justify-content: center; }
+            .inline-book-log input { width: 100%; }
+            .inline-book-log input[type="number"] { width: 100%; }
+        }
+
         /* Sponsor Specific Card Overrides */
         .sponsor-card {
             background: var(--card-bg);
@@ -575,6 +673,15 @@
         .rich-text-content strong { font-weight: 700; color: var(--primary); }
         .rich-text-content em { font-style: italic; }
         .rich-text-content a { color: var(--secondary); text-decoration: underline; font-weight: 600; }
+        
+        /* Make images inside rich text responsive */
+        .rich-text-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 1rem 0;
+            display: block;
+        }
 
         .detail-banner-desc { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; text-align: center; }
         .detail-banner-desc p { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; line-height: 1.7; margin-bottom: 0.5rem; text-align: center; }
@@ -926,7 +1033,7 @@
 
 <div id="journeyView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
     <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">Journey</h1>
-    <div id="journeyContentWrapper" style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
+    <div id="journeyContentWrapper" class="rich-text-content" style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
         <p style="margin-bottom: 1.5rem;"><strong>Community Equity Inc.</strong> is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection.</p>
         <p style="margin-bottom: 1.5rem;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         <p style="margin-bottom: 1.5rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -939,17 +1046,10 @@
     <section class="hero-banner-section">
         <div class="hero-content-layout">
             
-            <!-- Notification Box (Left Side) -->
-            <div class="hero-notification-box" id="heroNotifBox" style="display: none;">
-                <div class="notif-header">
-                    <span style="font-size: 1.4rem;">🔔</span> Announcements
-                </div>
-                <div class="notif-body rich-text-content" id="heroNotifContent">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
+            <!-- Invisible spacer to keep the goal section perfectly centered (Left Side) -->
+            <div class="hero-spacer" id="heroSpacer" style="display: none;"></div>
 
-            <!-- Existing Info Wrapper (Right Side) -->
+            <!-- Existing Info Wrapper (Center) -->
             <div class="hero-info-wrapper">
                 <div class="hero-info-pill top">
                     <span class="icon">✅</span>
@@ -967,6 +1067,14 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Notification Cloud (Right Side) -->
+            <div class="hero-notification-box" id="heroNotifBox" style="display: none;" title="Announcement">
+                <div class="notif-heading">📢 Announcements</div>
+                <div class="notif-body rich-text-content" id="heroNotifContent">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
 
         </div>
         
@@ -977,17 +1085,6 @@
     <section class="projects" id="projects">
         <div class="projects-grid" id="dynamicProjectsGrid">
             </div>
-    </section>
-
-    <!-- Sponsors Section -->
-    <section class="projects" id="sponsors-section" style="background-color: var(--bg); padding-top: 4rem;">
-        <div style="text-align: center; margin-bottom: 3rem;">
-            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--primary);">Our Sponsors</h2>
-            <div class="divider"></div>
-        </div>
-        <div class="projects-grid" id="dynamicSponsorsGrid">
-            <!-- Populated dynamically via JS -->
-        </div>
     </section>
 
     <div id="secureContent">
@@ -1029,6 +1126,18 @@
             </div>
         </section>
     </div>
+
+    <!-- Sponsors Section -->
+    <section class="projects" id="sponsors-section" style="background-color: var(--bg); padding-top: 4rem;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--primary);">Our Sponsors</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="projects-grid" id="dynamicSponsorsGrid">
+            <!-- Populated dynamically via JS -->
+        </div>
+    </section>
+
 </div>
 
 <div id="projectDetailView">
@@ -1037,10 +1146,15 @@
         <span class="detail-banner-icon" id="dtIcon">📚🎡</span>
         <h1 id="dtTitle">Project Title</h1>
         <div id="dtBannerDesc" class="detail-banner-desc">Project Description Banner</div>
-        <span class="badge" style="background:#FFFFFF; color:var(--secondary-dark); font-size:0.9rem;" id="dtBadge">Status Badge</span>
-        <div id="dtAlreadyRegisteredMsg" style="display: none; margin-top: 1.5rem; text-align: center;">
-            <span style="color: #FFFFFF; font-weight: 700; font-size: 1.15rem; background: rgba(255,255,255,0.15); padding: 0.5rem 1.5rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.3);">
-                <span style="color: var(--accent);">✓</span> You are registered for this workshop!
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+            <span class="badge" style="background:#FFFFFF; color:var(--secondary-dark); font-size:0.9rem;" id="dtBadge">Status Badge</span>
+            <div id="dtInlineAction" style="display: flex; align-items: center;"></div>
+        </div>
+
+        <div id="dtAlreadyRegisteredMsg" style="display: none; margin-top: 1.5rem; text-align: center; font-family: 'DM Sans', sans-serif;">
+            <span style="color: #FFFFFF; font-weight: 700; font-size: 1.15rem; letter-spacing: 0.5px;">
+                <span style="color: var(--accent); margin-right: 0.3rem;">✓</span> Already Registered
             </span>
         </div>
     </div>
@@ -1304,11 +1418,34 @@
         window.switchView('home');
     };
 
+    window.generateInlineActionHTML = (regData, context) => {
+        if (regData.progress >= 100) {
+            return `<span style="color: var(--secondary-dark); font-weight: 700; font-size: 0.9rem; margin-left: 0.5rem; background: var(--card-soft); padding: 0.3rem 0.8rem; border-radius: 50px; border: 1px solid var(--card-border);">🎉 Completed!</span>`;
+        }
+
+        if (regData.projectType === 'reading') {
+            return `
+                <div class="inline-book-log">
+                    <input type="text" id="inline-title-${regData.id}-${context}" placeholder="Book Title" onclick="event.stopPropagation();">
+                    <input type="text" id="inline-author-${regData.id}-${context}" placeholder="Author" onclick="event.stopPropagation();">
+                    <input type="number" id="inline-pages-${regData.id}-${context}" placeholder="Pages" onclick="event.stopPropagation();">
+                    <button onclick="event.stopPropagation(); window.addBookInline('${regData.id}', '${regData.projectId}', '${context}')">Log</button>
+                </div>
+            `;
+        } else if (regData.projectType === 'standard') {
+            return `
+                <button class="progress-btn" onclick="event.stopPropagation(); window.updateProgress('${regData.id}', ${regData.progress || 0})" style="margin-left: 0.5rem; padding: 0.3rem 0.8rem; font-size: 0.85rem;">+ Update Progress</button>
+            `;
+        }
+        return '';
+    };
+
     function updateDetailCTA() {
         const ctaBtn = document.getElementById('dtCtaBtn');
         const ctaTitle = document.getElementById('dtCtaTitle');
         const ctaSubtitle = document.getElementById('dtCtaSubtitle');
         const registeredMsg = document.getElementById('dtAlreadyRegisteredMsg');
+        const inlineBannerContainer = document.getElementById('dtInlineAction');
         
         if(!currentOpenProject) return;
 
@@ -1319,6 +1456,7 @@
         registeredMsg.style.display = "none";
         
         if (currentOpenProject.status === 'upcoming') {
+            if (inlineBannerContainer) inlineBannerContainer.innerHTML = '';
             ctaBtn.innerText = "Opening Soon";
             ctaBtn.style.opacity = "0.6";
             ctaBtn.style.cursor = "default";
@@ -1328,6 +1466,7 @@
 
         if (currentUser && !currentUser.isAnonymous) {
             if (!currentUserProfile || !currentUserProfile.name) {
+                if (inlineBannerContainer) inlineBannerContainer.innerHTML = '';
                 ctaBtn.innerText = "Complete Profile to Register";
                 ctaBtn.onclick = () => window.openProfileEdit();
             } else if (userRegisteredProjectIds.has(currentOpenProject.id)) {
@@ -1335,15 +1474,18 @@
                 ctaSubtitle.style.display = "none";
                 registeredMsg.style.display = "block";
                 
+                const regData = userRegisteredProjectIds.get(currentOpenProject.id);
+                if (inlineBannerContainer) inlineBannerContainer.innerHTML = window.generateInlineActionHTML(regData, 'banner');
+                
                 ctaBtn.innerText = "Cancel Registration";
                 ctaBtn.style.background = "linear-gradient(180deg, #EF4444 0%, #DC2626 100%)";
                 ctaBtn.onclick = async () => {
-                    const regId = userRegisteredProjectIds.get(currentOpenProject.id);
                     const safeName = (currentOpenProject.title || '').replace(/'/g, "\\'");
-                    await window.cancelRegistration(regId, safeName);
+                    await window.cancelRegistration(regData.id, safeName);
                     window.closeProjectDetail();
                 };
             } else {
+                if (inlineBannerContainer) inlineBannerContainer.innerHTML = '';
                 ctaBtn.innerText = "Register Now";
                 ctaBtn.onclick = () => {
                     window.closeProjectDetail();
@@ -1353,6 +1495,7 @@
                 };
             }
         } else {
+            if (inlineBannerContainer) inlineBannerContainer.innerHTML = '';
             ctaBtn.innerText = "Login to Register";
             ctaBtn.onclick = () => window.toggleModal(true);
         }
@@ -1361,22 +1504,31 @@
     function updateAllProjectCardsCTA() {
         for (const projectId in loadedProjects) {
             const ctaContainer = document.getElementById(`cta-card-${projectId}`);
+            const inlineContainer = document.getElementById(`inline-action-card-${projectId}`);
+            
             if (!ctaContainer) continue;
 
             const p = loadedProjects[projectId];
             let btnHtml = '';
 
             if (p.status === 'upcoming') {
+                if (inlineContainer) inlineContainer.innerHTML = '';
                 btnHtml = `<button class="green-pill-btn" style="opacity: 0.6; cursor: default; padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation();">Opening Soon</button>`;
             } else if (currentUser && !currentUser.isAnonymous) {
                 if (!currentUserProfile || !currentUserProfile.name) {
+                    if (inlineContainer) inlineContainer.innerHTML = '';
                     btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.openProfileEdit()">Complete Profile</button>`;
                 } else if (userRegisteredProjectIds.has(projectId)) {
+                    const regData = userRegisteredProjectIds.get(projectId);
+                    if (inlineContainer) inlineContainer.innerHTML = window.generateInlineActionHTML(regData, 'card');
+                    
                     btnHtml = `<button class="green-pill-btn" style="background: #FEE2E2; color: #EF4444; border-color: #FEE2E2; padding: 0.6rem 1rem; font-size: 0.95rem; box-shadow: none;" onclick="event.stopPropagation(); window.openProjectDetail('${projectId}')">Already Registered ✓</button>`;
                 } else {
+                    if (inlineContainer) inlineContainer.innerHTML = '';
                     btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.registerFromCard('${projectId}')">Register Now</button>`;
                 }
             } else {
+                if (inlineContainer) inlineContainer.innerHTML = '';
                 btnHtml = `<button class="green-pill-btn" style="padding: 0.6rem 1rem; font-size: 0.95rem;" onclick="event.stopPropagation(); window.toggleModal(true)">Login to Register</button>`;
             }
 
@@ -1436,8 +1588,12 @@
                         <div>
                             <div class="project-icon">${p.icon || '📌'}</div>
                             <h3>${p.title}</h3>
-                            <p>${p.description}</p>
-                            <div class="badge ${p.status === 'upcoming' ? 'upcoming' : ''}">${p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open')}</div>
+                            <div class="project-desc-rich">${p.description || ''}</div>
+                            
+                            <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; width: 100%;">
+                                <div class="badge ${p.status === 'upcoming' ? 'upcoming' : ''}">${p.badge || (p.status === 'upcoming' ? 'Upcoming' : 'Open')}</div>
+                                <div id="inline-action-card-${docSnap.id}" style="display: flex; align-items: center;"></div>
+                            </div>
                         </div>
                         <div class="project-card-cta" id="cta-card-${docSnap.id}" style="margin-top: 1.5rem; width: 100%;"></div>
                     </div>
@@ -1500,11 +1656,15 @@
         unsubscribeNotif = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'pages', 'notification'), (docSnap) => {
             const notifBox = document.getElementById('heroNotifBox');
             const notifContent = document.getElementById('heroNotifContent');
+            const heroSpacer = document.getElementById('heroSpacer');
+            
             if (docSnap.exists() && docSnap.data().enabled) {
                 notifContent.innerHTML = docSnap.data().content || '<p>No new announcements.</p>';
                 notifBox.style.display = 'flex';
+                if (heroSpacer) heroSpacer.style.display = 'block';
             } else {
                 notifBox.style.display = 'none';
+                if (heroSpacer) heroSpacer.style.display = 'none';
             }
         }, (error) => {
             console.error("Error fetching notification content:", error);
@@ -1763,7 +1923,7 @@
             snapshot.forEach(doc => { 
                 const data = doc.data();
                 userDocs.push({id: doc.id, ...data}); 
-                userRegisteredProjectIds.set(data.projectId, doc.id); 
+                userRegisteredProjectIds.set(data.projectId, {id: doc.id, ...data}); 
             });
 
             updateProjectDropdownUI();
@@ -1900,6 +2060,52 @@
     
     window.updateProgress = async (id, cur) => { 
         if (currentUser) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id), { progress: Math.min(cur + 25, 100) }); 
+    };
+
+    window.addBookInline = async (docId, projectId, context) => {
+        if (!currentUser) return;
+        const titleInput = document.getElementById(`inline-title-${docId}-${context}`);
+        const authorInput = document.getElementById(`inline-author-${docId}-${context}`);
+        const pagesInput = document.getElementById(`inline-pages-${docId}-${context}`);
+
+        const title = titleInput.value.trim();
+        const author = authorInput.value.trim();
+        const pagesStr = pagesInput.value;
+        const pages = parseInt(pagesStr);
+
+        if (!title || !author || !pagesStr || isNaN(pages)) {
+            await window.showCustomMsg("Missing Details", "Please enter title, author, and number of pages.");
+            return;
+        }
+
+        const pData = loadedProjects[projectId];
+        const minPages = (pData && pData.minPages) ? pData.minPages : 50;
+
+        if (pages < minPages) {
+            await window.showCustomMsg("Requirement Not Met", `Books must be at least ${minPages} pages long to count for this project.`);
+            return;
+        }
+
+        try {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'registrations', docId); 
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const bks = snap.data().books || [];
+                const targetBooks = snap.data().minBooks || 3; 
+                
+                let newProgress = Math.min(Math.round(((bks.length + 1) / targetBooks) * 100), 100);
+                await updateDoc(ref, { 
+                    books: arrayUnion({ title, author, pages }), 
+                    progress: newProgress 
+                });
+                
+                titleInput.value = '';
+                authorInput.value = '';
+                pagesInput.value = '';
+
+                await window.showCustomMsg("Awesome!", "Your book has been successfully logged.");
+            }
+        } catch (err) { await window.showCustomMsg("Error", "Could not log book."); }
     };
     
     window.addBook = async (docId, projectId) => {
