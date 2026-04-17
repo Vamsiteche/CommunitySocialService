@@ -8,11 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Quill Rich Text Editor & Image Resize Module -->
+    <!-- Quill Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script>window.Quill = Quill;</script>
-    <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-script@1.2.8/image-resize.min.js"></script>
 
     <style>
         :root {
@@ -106,7 +104,8 @@
                 <span class="admin-logo" style="margin: 0;">CommunityEquity<span>Inc</span></span>
             </div>
             <p style="color: #666;">Authorized personnel only.</p>
-            <button class="google-btn" onclick="handleLogin()">
+            <!-- FIX: Explicitly call window.handleLogin() -->
+            <button class="google-btn" onclick="window.handleLogin()">
                 <svg class="google-icon" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
                     <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
@@ -131,16 +130,18 @@
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span id="adminName" style="font-weight: 600;">Admin</span>
-                <button onclick="handleLogout()" class="logout-btn">Logout</button>
+                <!-- FIX: Explicitly call window.handleLogout() -->
+                <button onclick="window.handleLogout()" class="logout-btn">Logout</button>
             </div>
         </header>
 
         <div class="admin-nav">
-            <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">Overview</button>
-            <button class="tab-btn" onclick="switchTab('projects')" id="tab-projects">Manage Projects</button>
-            <button class="tab-btn" onclick="switchTab('sponsors')" id="tab-sponsors">Manage Sponsors</button>
-            <button class="tab-btn" onclick="switchTab('pages')" id="tab-pages">Site Pages</button>
-            <button class="tab-btn" onclick="switchTab('reviews')" id="tab-reviews">Manage Reviews</button>
+            <!-- FIX: Explicitly call window.switchTab() -->
+            <button class="tab-btn active" onclick="window.switchTab('overview')" id="tab-overview">Overview</button>
+            <button class="tab-btn" onclick="window.switchTab('projects')" id="tab-projects">Manage Projects</button>
+            <button class="tab-btn" onclick="window.switchTab('sponsors')" id="tab-sponsors">Manage Sponsors</button>
+            <button class="tab-btn" onclick="window.switchTab('pages')" id="tab-pages">Site Pages</button>
+            <button class="tab-btn" onclick="window.switchTab('reviews')" id="tab-reviews">Manage Reviews</button>
         </div>
 
         <!-- OVERVIEW TAB -->
@@ -447,7 +448,7 @@
         let unsubscribeSponsors = null;
         let unsubscribeReviews = null;
 
-        // Initialize Quill Editors
+        // Initialize Quill Editors (FIXED: removed buggy 3rd-party image resize module)
         const quillOptions = {
             theme: 'snow',
             modules: {
@@ -459,11 +460,7 @@
                     [{ 'align': [] }],
                     ['image'],
                     ['clean']
-                ],
-                imageResize: {
-                    displaySize: true,
-                    modules: [ 'Resize', 'DisplaySize', 'Toolbar' ]
-                }
+                ]
             }
         };
         const qDesc = new Quill('#pDesc', quillOptions);
@@ -479,6 +476,7 @@
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
         });
 
+        // FIXED: Exporting to window correctly
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
@@ -516,6 +514,7 @@
             }
         });
 
+        // FIXED: Exporting to window correctly
         window.handleLogin = async () => {
             const provider = new GoogleAuthProvider();
             try {
@@ -528,6 +527,7 @@
             }
         };
         
+        // FIXED: Exporting to window correctly
         window.handleLogout = async () => {
             if (unsubscribeRegistrations) unsubscribeRegistrations();
             if (unsubscribeProjects) unsubscribeProjects();
@@ -1034,6 +1034,7 @@
                             <td style="color:#F59E0B; font-size:1.2rem; letter-spacing: 2px;">${stars}</td>
                             <td style="max-width: 300px; white-space: pre-wrap; color: #4B5563;">${r.text}</td>
                             <td>
+                                <!-- FIX: Explicitly call window.deleteReview() -->
                                 <button onclick="window.deleteReview('${r.id}')" class="logout-btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Delete</button>
                             </td>
                         </tr>
@@ -1043,6 +1044,7 @@
                 console.error("Reviews fetch error:", error);
             });
 
+            // FIXED: Exporting to window correctly
             window.deleteReview = async (id) => {
                 if (confirm('Are you sure you want to delete this review?')) {
                     try {
