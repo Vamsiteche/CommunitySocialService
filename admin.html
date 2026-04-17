@@ -11,6 +11,9 @@
     <!-- Quill Rich Text Editor -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    
+    <!-- Blot Formatter for Image Resizing & Alignment -->
+    <script src="https://cdn.jsdelivr.net/npm/quill-blot-formatter@1.0.5/dist/quill-blot-formatter.min.js"></script>
 
     <style>
         :root {
@@ -72,7 +75,7 @@
         }
         .journey-editor-wrapper .ql-toolbar {
             background: #F9FAFB;
-            max-width: 816px;
+            width: 100%;
             margin: 0 auto;
             border: 1px solid #DCE8D1 !important;
             border-top-left-radius: 8px;
@@ -80,8 +83,8 @@
         }
         #journeyEditor {
             background: #FFFFFF;
-            max-width: 816px;
-            min-height: 1056px; /* Simulates an 8.5 x 11 inch page */
+            width: 100%;
+            min-height: 1056px; /* Provides a large canvas height simulating a page */
             margin: 0 auto;
             padding: 2rem 3rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.08);
@@ -401,11 +404,11 @@
             </div>
 
             <!-- Journey Page Edit -->
-            <div class="add-project-card" style="max-width: 1000px; margin: auto;">
+            <div class="add-project-card" style="width: 100%; margin: auto;">
                 <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Edit Journey Page</h3>
                 <div class="pm-form-group">
                     <label>Journey Page Content</label>
-                    <span class="pm-help">This content will be displayed on the "Journey" page in the user application. Select an image inside the editor and use the Alignment tool to make text flow around it.</span>
+                    <span class="pm-help">This content will be displayed on the "Journey" page in the user application. Select an image inside the editor and use the formatting tools to resize and align it.</span>
                     <div class="journey-editor-wrapper">
                         <div id="journeyEditor" class="quill-editor"></div>
                     </div>
@@ -476,6 +479,9 @@
         let unsubscribeSponsors = null;
         let unsubscribeReviews = null;
 
+        // Register Blot Formatter for Image Resizing
+        Quill.register('modules/blotFormatter', QuillBlotFormatter.default);
+
         // Initialize Quill Editors
         const quillOptions = {
             theme: 'snow',
@@ -488,7 +494,8 @@
                     [{ 'align': [] }],
                     ['image'],
                     ['clean']
-                ]
+                ],
+                blotFormatter: {} // Enables the resize and align overlay for images
             }
         };
         const qDesc = new Quill('#pDesc', quillOptions);
