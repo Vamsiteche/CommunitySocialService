@@ -63,6 +63,35 @@
         .ql-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; background: #F9FAFB; border-color: #E5E7EB !important; }
         .ql-container { border-color: #E5E7EB !important; }
 
+        /* Document-like styling for the Journey Editor */
+        .journey-editor-wrapper {
+            background: #E5E7EB;
+            padding: 2rem 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .journey-editor-wrapper .ql-toolbar {
+            background: #F9FAFB;
+            max-width: 816px;
+            margin: 0 auto;
+            border: 1px solid #DCE8D1 !important;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        #journeyEditor {
+            background: #FFFFFF;
+            max-width: 816px;
+            min-height: 1056px; /* Simulates an 8.5 x 11 inch page */
+            margin: 0 auto;
+            padding: 2rem 3rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border: 1px solid #DCE8D1 !important;
+            border-top: none !important;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            font-size: 1.05rem;
+        }
+
         /* Advanced Form */
         .pm-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: start;}
         .add-project-card { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -104,7 +133,6 @@
                 <span class="admin-logo" style="margin: 0;">CommunityEquity<span>Inc</span></span>
             </div>
             <p style="color: #666;">Authorized personnel only.</p>
-            <!-- FIX: Explicitly call window.handleLogin() -->
             <button class="google-btn" onclick="window.handleLogin()">
                 <svg class="google-icon" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
@@ -130,13 +158,11 @@
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <span id="adminName" style="font-weight: 600;">Admin</span>
-                <!-- FIX: Explicitly call window.handleLogout() -->
                 <button onclick="window.handleLogout()" class="logout-btn">Logout</button>
             </div>
         </header>
 
         <div class="admin-nav">
-            <!-- FIX: Explicitly call window.switchTab() -->
             <button class="tab-btn active" onclick="window.switchTab('overview')" id="tab-overview">Overview</button>
             <button class="tab-btn" onclick="window.switchTab('projects')" id="tab-projects">Manage Projects</button>
             <button class="tab-btn" onclick="window.switchTab('sponsors')" id="tab-sponsors">Manage Sponsors</button>
@@ -375,12 +401,14 @@
             </div>
 
             <!-- Journey Page Edit -->
-            <div class="add-project-card" style="max-width: 800px; margin: auto;">
+            <div class="add-project-card" style="max-width: 1000px; margin: auto;">
                 <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.8rem;">Edit Journey Page</h3>
                 <div class="pm-form-group">
                     <label>Journey Page Content</label>
                     <span class="pm-help">This content will be displayed on the "Journey" page in the user application. Select an image inside the editor and use the Alignment tool to make text flow around it.</span>
-                    <div id="journeyEditor" class="quill-editor" style="min-height: 300px;"></div>
+                    <div class="journey-editor-wrapper">
+                        <div id="journeyEditor" class="quill-editor"></div>
+                    </div>
                 </div>
                 <button class="pm-btn" id="saveJourneyBtn" style="margin-top: 1.5rem; width: 100%;">Save Journey Content</button>
             </div>
@@ -448,7 +476,7 @@
         let unsubscribeSponsors = null;
         let unsubscribeReviews = null;
 
-        // Initialize Quill Editors (FIXED: removed buggy 3rd-party image resize module)
+        // Initialize Quill Editors
         const quillOptions = {
             theme: 'snow',
             modules: {
@@ -476,7 +504,6 @@
             document.getElementById('readingSettingsWrapper').style.display = (e.target.value === 'reading') ? 'flex' : 'none';
         });
 
-        // FIXED: Exporting to window correctly
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
@@ -514,7 +541,6 @@
             }
         });
 
-        // FIXED: Exporting to window correctly
         window.handleLogin = async () => {
             const provider = new GoogleAuthProvider();
             try {
@@ -527,7 +553,6 @@
             }
         };
         
-        // FIXED: Exporting to window correctly
         window.handleLogout = async () => {
             if (unsubscribeRegistrations) unsubscribeRegistrations();
             if (unsubscribeProjects) unsubscribeProjects();
