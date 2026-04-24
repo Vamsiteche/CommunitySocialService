@@ -204,6 +204,7 @@
                             <th>Project</th>
                             <th>Progress</th>
                             <th>Details</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
@@ -640,9 +641,22 @@
                         <td>${d.projectName}</td>
                         <td><span class="status-pill ${isComplete ? 'status-complete' : 'status-active'}">${d.progress || 0}%</span></td>
                         <td>${detailsHtml}</td>
+                        <td><button onclick="window.deleteRegistration('${d.id}')" class="logout-btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Remove</button></td>
                     </tr>`;
             });
         }
+
+        // FIXED: Global function to delete a registration
+        window.deleteRegistration = async (id) => {
+            if (confirm("Are you sure you want to completely remove this user's registration? They will need to sign up again.")) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'registrations', id));
+                } catch (err) {
+                    console.error(err);
+                    alert("Failed to delete registration. Please check permissions.");
+                }
+            }
+        };
 
         // ==========================
         // PROJECT MANAGER LOGIC

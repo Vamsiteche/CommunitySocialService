@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CommunityEquityInc</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="Gemini_Generated_Image_13jn9m13jn9m13jn.png" type="image/png">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -286,7 +289,7 @@
             position: relative;
         }
 
-        /* Notification Rounded Box CSS */
+        /* Notification Box */
         .hero-notification-box {
             flex: 1;
             width: 100%;
@@ -493,48 +496,6 @@
         .project-desc-rich { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; text-align: center; }
         .project-desc-rich p { margin-bottom: 0; }
         
-        /* Inline Logging Form Styles */
-        .inline-book-log {
-            display: flex;
-            gap: 0.4rem;
-            align-items: center;
-            background: #FFFFFF;
-            padding: 0.4rem;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .inline-book-log input {
-            border: 1px solid var(--card-border);
-            border-radius: 4px;
-            padding: 0.4rem 0.5rem;
-            font-size: 0.85rem;
-            outline: none;
-            width: 100px;
-            font-family: 'DM Sans', sans-serif;
-            color: var(--text);
-        }
-        .inline-book-log input[type="number"] { width: 60px; }
-        .inline-book-log input:focus { border-color: var(--secondary); }
-        .inline-book-log button {
-            background: var(--secondary-dark);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .inline-book-log button:hover { background: var(--primary); }
-
-        @media (max-width: 600px) {
-            .inline-book-log { flex-wrap: wrap; justify-content: center; }
-            .inline-book-log input { width: 100%; }
-            .inline-book-log input[type="number"] { width: 100%; }
-        }
-
         /* Sponsor Specific Card Overrides */
         .sponsor-card {
             background: var(--card-bg);
@@ -576,16 +537,23 @@
         }
         .star-rating label {
             font-size: 2.5rem;
-            color: #D1D5DB;
             cursor: pointer;
-            transition: color 0.2s ease-in-out;
+            transition: all 0.2s ease-in-out;
             padding-right: 0.2rem;
         }
-        .star-rating input[type="radio"]:checked ~ label {
-            color: #F59E0B; /* Amber/Gold */
+        /* Default state: Empty star */
+        .star-rating label::before {
+            content: '☆';
+            color: #9CA3AF; 
         }
-        .star-rating label:hover,
-        .star-rating label:hover ~ label {
+        /* Selected/Hover state: Filled star */
+        .star-rating input[type="radio"]:checked ~ label::before {
+            content: '★';
+            color: #F59E0B; 
+        }
+        .star-rating label:hover::before,
+        .star-rating label:hover ~ label::before {
+            content: '★';
             color: #FBBF24; 
         }
 
@@ -1011,11 +979,11 @@
             <div class="form-group">
                 <label style="margin-bottom:0.5rem; display:block;">Overall Rating</label>
                 <div class="star-rating">
-                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">★</label>
-                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">★</label>
-                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">★</label>
-                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">★</label>
-                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">★</label>
+                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars"></label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars"></label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars"></label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars"></label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"></label>
                 </div>
             </div>
             <div class="form-group">
@@ -1035,9 +1003,9 @@
     </div>
 </div>
 
-<div id="journeyView" style="display: none; padding: 4rem 5%; max-width: 1000px; margin: auto; min-height: 70vh;">
+<div id="journeyView" style="display: none; padding: 4rem 5%; width: 100%; margin: auto; min-height: 70vh;">
     <h1 style="font-family: 'Playfair Display', serif; font-size: 3rem; color: var(--primary); margin-bottom: 2rem; text-align: center;">Journey</h1>
-    <div id="journeyContentWrapper" class="rich-text-content" style="background: var(--card-soft); padding: 3rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400;">
+    <div id="journeyContentWrapper" class="rich-text-content" style="background: var(--card-soft); padding: 3rem 5%; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); font-size: 1.1rem; color: var(--text); line-height: 1.8; font-weight: 400; width: 100%;">
         <p style="margin-bottom: 1.5rem;"><strong>Community Equity Inc.</strong> is a youth-led nonprofit dedicated to building stronger, more equitable communities through service and connection.</p>
         <p style="margin-bottom: 1.5rem;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         <p style="margin-bottom: 1.5rem;">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -1050,13 +1018,8 @@
     <section class="hero-banner-section">
         <div class="hero-content-layout">
             
-            <!-- Notification Rounded Box (Left Side) -->
-            <div class="hero-notification-box" id="heroNotifBox" style="display: none;" title="Announcement">
-                <div class="notif-heading">📢 Announcements</div>
-                <div class="notif-body rich-text-content" id="heroNotifContent">
-                    <!-- Loaded dynamically -->
-                </div>
-            </div>
+            <!-- Invisible spacer to keep the goal section perfectly centered (Left Side) -->
+            <div class="hero-spacer" id="heroSpacer" style="display: none;"></div>
 
             <!-- Existing Info Wrapper (Center) -->
             <div class="hero-info-wrapper">
@@ -1077,8 +1040,13 @@
                 </div>
             </div>
             
-            <!-- Invisible spacer to keep the goal section perfectly centered (Right Side) -->
-            <div class="hero-spacer" id="heroSpacer" style="display: none;"></div>
+            <!-- Notification Box (Right Side) -->
+            <div class="hero-notification-box" id="heroNotifBox" style="display: none;" title="Announcement">
+                <div class="notif-heading">📢 Announcements</div>
+                <div class="notif-body rich-text-content" id="heroNotifContent">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
 
         </div>
         
