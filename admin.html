@@ -575,7 +575,9 @@
             unsubscribeRegistrations = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'registrations'), (snapshot) => {
                 const allDocs = []; const projectCounts = {}; let totalAge = 0; let completedCount = 0;
                 snapshot.forEach(doc => {
-                    const d = doc.data(); allDocs.push(d);
+                    const d = doc.data(); 
+                    d.id = doc.id; // FIX: Attach the actual document ID here
+                    allDocs.push(d);
                     projectCounts[d.projectName] = (projectCounts[d.projectName] || 0) + 1;
                     if(d.age) totalAge += parseInt(d.age);
                     if(d.progress >= 100) completedCount++;
