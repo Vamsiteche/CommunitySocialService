@@ -492,9 +492,14 @@
         }
         .project-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .project-icon { font-size: 3.5rem; margin-bottom: 1rem; display: inline-block; }
+        
         .project-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); margin-bottom: 0.8rem; }
-        .project-desc-rich { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; text-align: center; }
-        .project-desc-rich p { margin-bottom: 0; }
+        .project-desc-rich { color: var(--muted); font-size: 0.95rem; font-weight: 400; line-height: 1.7; margin-bottom: 1.5rem; text-align: left; }
+        .project-desc-rich p { margin-bottom: 0.5rem; }
+        .project-desc-rich p:last-child { margin-bottom: 0; }
+        .project-desc-rich ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.5rem; }
+        .project-desc-rich ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 0.5rem; }
+        .project-desc-rich strong { font-weight: 700; color: var(--text); }
         
         /* Sponsor Specific Card Overrides */
         .sponsor-card {
@@ -651,9 +656,9 @@
         }
 
         /* Quill Alignment Support */
-        .rich-text-content .ql-align-center { text-align: center; }
-        .rich-text-content .ql-align-right { text-align: right; }
-        .rich-text-content .ql-align-justify { text-align: justify; }
+        .rich-text-content .ql-align-center, .project-desc-rich .ql-align-center { text-align: center; }
+        .rich-text-content .ql-align-right, .project-desc-rich .ql-align-right { text-align: right; }
+        .rich-text-content .ql-align-justify, .project-desc-rich .ql-align-justify { text-align: justify; }
 
         .detail-banner-desc { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; text-align: center; }
         .detail-banner-desc p { color: rgba(255,255,255,0.9); font-size: 1.05rem; font-weight: 400; line-height: 1.7; margin-bottom: 0.5rem; text-align: center; }
@@ -1922,7 +1927,7 @@
                     let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:var(--muted); font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:var(--muted); font-weight:500; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
                     let form = '';
                     
-                    if (bks.length < targetBooks) {
+                    if (bks.length < 20) {
                         form = `
                             <div class="book-form">
                                 <input type="text" id="title-${d.id}" class="book-input" placeholder="Book Title" required>
@@ -1931,6 +1936,8 @@
                                 <button class="add-book-btn" onclick="window.addBook('${d.id}', '${d.projectId}')">Log Book</button>
                             </div>
                         `;
+                    } else {
+                        form = `<div style="margin-top: 1rem; color: var(--secondary-dark); font-weight: bold; text-align: center;">You have reached the maximum limit of 20 books! Amazing job! 🌟</div>`;
                     }
                     action = `<div class="book-log-container">${list}${form}</div>`;
                 } else if (isSimple) {
@@ -2068,6 +2075,11 @@
                 const bks = snap.data().books || [];
                 const targetBooks = snap.data().minBooks || 3; 
                 
+                if (bks.length >= 20) {
+                    await window.showCustomMsg("Limit Reached", "You have reached the maximum limit of 20 books. Amazing job!");
+                    return;
+                }
+
                 let newProgress = Math.min(Math.round(((bks.length + 1) / targetBooks) * 100), 100);
                 await updateDoc(ref, { 
                     books: arrayUnion({ title, author, pages }), 
@@ -2110,6 +2122,11 @@
                 const bks = snap.data().books || [];
                 const targetBooks = snap.data().minBooks || 3; 
                 
+                if (bks.length >= 20) {
+                    await window.showCustomMsg("Limit Reached", "You have reached the maximum limit of 20 books. Amazing job!");
+                    return;
+                }
+
                 let newProgress = Math.min(Math.round(((bks.length + 1) / targetBooks) * 100), 100);
                 await updateDoc(ref, { 
                     books: arrayUnion({ title, author, pages }), 
