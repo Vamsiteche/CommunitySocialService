@@ -1927,7 +1927,9 @@
                     let list = bks.length ? `<ul class="book-list">${bks.map(b=>`<li class="book-item"><span class="book-icon">📖</span> <strong>${b.title}</strong> by ${b.author} <span style="color:var(--muted); font-size:0.8rem; margin-left:auto;">(${b.pages} pages)</span></li>`).join('')}</ul>` : `<p style="font-size:0.9rem; color:var(--muted); font-weight:500; margin-bottom:0.5rem;">No books logged yet. Add one below!</p>`;
                     let form = '';
                     
-                    if (bks.length < 20) {
+                    if (d.parentName) {
+                        form = ''; // Form is completely removed once signed by parent
+                    } else if (bks.length < 20) {
                         form = `
                             <div class="book-form">
                                 <input type="text" id="title-${d.id}" class="book-input" placeholder="Book Title" required>
