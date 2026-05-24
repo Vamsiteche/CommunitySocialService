@@ -258,6 +258,7 @@
                                 <select id="pStatus" class="pm-input">
                                     <option value="open">Open for Registration</option>
                                     <option value="upcoming">Upcoming (Disabled)</option>
+                                    <option value="closed">Registration Closed</option>
                                 </select>
                             </div>
                         </div>
@@ -439,7 +440,6 @@
         </div>
     </div>
 
-    <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
@@ -686,6 +686,10 @@
                     } else if (p.type === 'simple') {
                         pTypeStr = `✅ Simple Signup`;
                     }
+
+                    let pStatusIndicator = ' • 🟢 Open';
+                    if (p.status === 'upcoming') pStatusIndicator = ' • 🟡 Upcoming';
+                    if (p.status === 'closed') pStatusIndicator = ' • 🔴 Closed';
                     
                     container.innerHTML += `
                         <div class="admin-project-card">
@@ -698,7 +702,7 @@
                             </div>
                             <div class="ap-title">${p.title}</div>
                             <div style="font-size:0.85rem; color:#666; margin: 0.5rem 0;">${p.description || ''}</div>
-                            <div class="ap-type">${pTypeStr} ${p.status === 'upcoming' ? ' • 🟡 Upcoming' : ' • 🟢 Open'}</div>
+                            <div class="ap-type">${pTypeStr}${pStatusIndicator}</div>
                         </div>`;
                 });
             }, (error) => {
